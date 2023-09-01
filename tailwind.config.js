@@ -7,8 +7,9 @@ export default {
   theme: {
     fontFamily: {
       'sans': ['Quicksand', 'sans-serif'],
-      'cursive': ['cursive'],
+      'display': ['Varela Round', 'sans-serif'],
     },
+    
     extend: {},
   },
   plugins: [],
