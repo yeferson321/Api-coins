@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import Jumbotron from '../jumbotron/Jumbotron.vue';
+import Coins from '../coins/Coins.vue'
 </script>
 
 <template>
-    <Jumbotron></Jumbotron>
+    <Coins></Coins>
 </template>
   
