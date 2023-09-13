@@ -4,7 +4,7 @@
             <div className="relative flex h-[60px] items-center justify-between">
                 <a href="/" class="flex items-center mr-4 flex-none">
                     <img src="https://firebasestorage.googleapis.com/v0/b/apideployusers.appspot.com/o/apicoins%2Fcoinicon.png?alt=media&token=1787e177-1d76-4ed2-8a25-aaba05f6e4bd"
-                        class="h-8 mr-3" alt="Flowbite Logo" />
+                        class="h-8 mr-3" alt="Coinsver Logo" />
                     <span class="self-center text-2xl font-semibold font-cursive whitespace-nowrap text-white">Coinsver</span>
                 </a>
                 <div class="flex-none">

@@ -1,154 +1,41 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { Ref, onMounted, watch, watchEffect } from 'vue';
-
-import { Chart, ChartConfiguration } from 'chart.js/auto';
+import { Ref, onMounted, watch } from 'vue';
 import { getCoinsCurrencies } from '../../services/CoinService';
 import { Coin, Stats } from '../../interfaces/Data';
-import { ChartDataset } from '../../interfaces/ChartDataset';
-
 import Jumbotron from '../jumbotron/Jumbotron.vue';
+import SearchCoins from '../searchCoins/SearchCoins.vue';
+import Canvas from '../canvas/Canvas.vue';
 import Pagination from '../pagination/Pagination.vue';
 
-// import noResults from "../noResults/noResults.vue";
-// import pagination from "../pagination/pagination.vue";
-// import footer from "../footer/footer.vue";
-
-// These lines of code are defining reactive variables using the `ref`.
 const coins: Ref<Coin[]> = ref([]);
 const stats: Ref<Stats> = ref({} as Stats);
-const isLoading: Ref<boolean> = ref(true);
-const noFound: Ref<boolean> = ref(true);
+const isLoading: Ref<boolean> = ref(false);
+// const noFound: Ref<aboolean> = ref(true);
 const offset: Ref<number> = ref(0);
 const error: Ref<string> = ref("");
 const isIconActive: Ref<boolean> = ref(true);
-const charts: Ref<Chart[]> = ref([]);
 
-const createGradient = (ctx: CanvasRenderingContext2D, change: string,) => {
-    const gradient = ctx.createLinearGradient(0, 0, 0, 25);
-    gradient.addColorStop(0, change?.includes("-") ? "#DC2626b3" : "#4EDE80C4");
-    gradient.addColorStop(1, "transparent");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 96, 37);
-
-    return gradient;
-}
-
-const createData = (sparkline: number[], change: string, gradient: CanvasGradient) => {
-    const sparklineData = sparkline ?? ["0", "0"];
-    const minValue = Math.min(...sparklineData.filter((val) => val != null));
-    return {
-        labels: sparklineData.map((_, i) => i + 1),
-        datasets: [
-            {
-                label: "Price",
-                data: sparklineData.map((val) => val != null ? Number(val) : minValue),
-                borderWidth: 1,
-                pointRadius: 0,
-                pointHoverBorderWidth: 1,
-                fill: true,
-                borderColor: change
-                    ? change.includes("-")
-                        ? "#DC2626"
-                        : "#4ADE80"
-                    : "#5F80B2",
-                backgroundColor: gradient,
-            },
-        ],
-    };
-};
-
-const createChartConfig = (data: ChartDataset): ChartConfiguration => {
-    return {
-        type: "line",
-        data,
-        options: {
-            animation: {
-                duration: 0,
-            },
-            scales: {
-                y: {
-                    display: false,
-                },
-                x: {
-                    display: false,
-                },
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                },
-                title: {
-                    display: false,
-                },
-                tooltip: {
-                    enabled: false,
-                    usePointStyle: false,
-                },
-            },
-        },
-    };
-};
-
-/* The `renderChart` function receives (coins), (index) as an argument */
-const renderChart = (coins: Coin, index: number): void => {
-    // Extracts the sparkline and change properties of the coins object.
-    const { sparkline, change } = coins;
-
-    /* Finds the canvas element corresponding to the graphic in the DOM using getElementById and the index provided as a parameter. If it doesn't 
-    find the element, the function returns without doing anything. */
-    const canvas = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
-    if (!canvas) return;
-
-    /* It then gets the 2D context of the canvas and uses it to create a linear gradient using the `createGradient` function, passing the context and 
-    the change property of the Coin. */
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const gradient = createGradient(ctx, change)
-
-    /* It then uses the `createData` function to get the data needed to create the chart from the Coin's sparkline property, the change property, 
-    and the gradient created earlier. */
-    const data = createData(sparkline, change, gradient)
-
-    // With the `createChartConfig` function, the necessary configuration is obtained to create the chart from the previously obtained data.
-    const chartConfig = createChartConfig(data)
-
-    //If a chart already exists at position index in the charts array, the function destroys it with the destroy method before creating the new chart.
-    if (charts[index]) {
-        charts[index].destroy();
-    }
-
-    // Finally, it creates the chart using the Chart.js library and saves it at the index position of the charts array.
-    const chart = new Chart(canvas, chartConfig);
-    charts[index] = chart;
-};
-
-
-/* The `loadData` function receives (offset) as an argument that is used to get the list of coins for a given position. This function is responsible 
-for loading data into the application. */
 const loadData = async (offset: number): Promise<void> => {
-    /* The try-catch function is being used to load data into the application. First, the `getCoinsCurrencies` function is called to get data about 
-    coins and statistics. */
     try {
-        /* If the data load is successful, the values of the coins and stats are assigned to the reactive variables coins and stats, respectively, and
-        the isLoading variable is set to false. */
         const data = await getCoinsCurrencies(offset);
         coins.value = data.coins;
         stats.value = data.stats;
-        isLoading.value = false;
+        isLoading.value = true;
     } catch (err: unknown) {
-        // If any error occurs during data loading, an error message is assigned to the error reactive variable.
         error.value = (err as Error).message;
     }
 };
 
-watchEffect(async () => {
-    coins.value = []
+const renderTable = async (): Promise<void> => {
+    isLoading.value = false
     await loadData(offset.value);
-    coins.value.forEach(renderChart);
-    console.log("hola")
+}
+
+onMounted(renderTable);
+
+watch(offset, () => {
+  renderTable()
 });
 
 /**
@@ -238,66 +125,14 @@ const formatMonetaryAmount = (amount: number) => {
 </script>
 
 <template>
+
     <Jumbotron :stats="stats"></Jumbotron>
+
+    <SearchCoins @onChangeCoins="coins = $event" @offsef="offset = $event"></SearchCoins>
 
     <section class="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8">
 
-
-        <div class="relative">
-
-            <!-- <div class="flex items-center justify-between pb-4 bg-white dark:bg-gray-900">
-                <div>
-                    <button id="dropdownActionButton" data-dropdown-toggle="dropdownAction"
-                        class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-                        type="button">
-                        <span class="sr-only">Action button</span>
-                        Action
-                        <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 10 6">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 4 4 4-4" />
-                        </svg>
-                    </button>
-                
-                    <div id="dropdownAction"
-                        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
-                        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownActionButton">
-                            <li>
-                                <a href="#"
-                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Reward</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Promote</a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Activate
-                                    account</a>
-                            </li>
-                        </ul>
-                        <div class="py-1">
-                            <a href="#"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete
-                                User</a>
-                        </div>
-                    </div>
-                </div>
-                <label for="table-search" class="sr-only">Search</label>
-                <div class="relative">
-                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                        </svg>
-                    </div>
-                    <input type="text" id="table-search-users"
-                        class="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        placeholder="Search for users">
-                </div>
-            </div> -->
-
+    
             <table class="w-full text-[12px] sm:text-sm text-left text-white">
 
                 <thead class="text-sm uppercase text-gray-400">
@@ -322,7 +157,7 @@ const formatMonetaryAmount = (amount: number) => {
 
                 <tbody>
 
-                    <tr v-if="isLoading">
+                    <tr v-if="!isLoading">
                         <td colspan="5" class="px-1 py-20">
                             <div role="status" class="flex justify-center h-[3080px] w-full">
                                 <svg aria-hidden="true"
@@ -397,26 +232,18 @@ const formatMonetaryAmount = (amount: number) => {
                                     :class="{ 'text-red-600': cryptos.change && cryptos.change.includes('-'), 'text-green-400': cryptos.change && !cryptos.change.includes('-') }">
                                     {{ cryptos.change ? cryptos.change.includes('-') ? cryptos.change : '+' + cryptos.change
                                         : "--%" }}
-                                </span>
-                                <span>
-                                    <canvas :id="`Chart-${index}`" class="w-[50px] sm:w-[100px]" style="height: 20px;">
-                                        Your browser does not support the canvas element.
-                                    </canvas>
-                                </span>
+                                </span>                               
+                                <Canvas :sparkline="cryptos.sparkline" :change="cryptos.change" :index="index"></Canvas>
                             </div>
                         </td>
 
                     </tr>
 
-
                 </tbody>
             </table>
-
-
-
-        </div>
 
     </section>
 
     <Pagination :stats="stats" @offsef="offset = $event"></Pagination>
+
 </template>

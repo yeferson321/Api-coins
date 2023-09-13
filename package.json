@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.5.2",
     "axios": "^1.5.0",
     "chart.js": "^4.4.0",
+    "floating-vue": "^2.0.0-beta.24",
     "vue": "^3.3.4",
     "vue-router": "^4.2.4"
   },

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from "@vue/reactivity";
-import { Ref, watchEffect, watch } from "vue";
+import { ref } from "@vue/reactivity";
+import { Ref, watch, watchEffect } from "vue";
 import { Stats } from "../../interfaces/Data";
 
 const offset: Ref<number> = ref(0);
@@ -13,15 +13,20 @@ const props = defineProps({
     }
 });
 
-
 const emits = defineEmits<{
     (event: "offsef", value: number): void;
 }>();
 
 watchEffect(() => {
-    emits('offsef', offset.value);
-    console.log(props.stats.total - items.value)
+    
 })
+
+
+watch(offset, () => {
+    emits('offsef', offset.value);
+
+    console.log(props.stats.total - items.value)
+});
 
 
 </script>
