@@ -4,12 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.5.2",
     "axios": "^1.5.0",
     "chart.js": "^4.4.0",
     "floating-vue": "^2.0.0-beta.24",

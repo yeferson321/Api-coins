@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { PropType, Ref, onMounted, watch } from 'vue';
+import { PropType, Ref, onMounted } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { ChartDataset } from '../../interfaces/ChartDataset';
 
 const props = defineProps({
     sparkline: {
-        type: Array as PropType<number[]>,
-        required: true,
+        type: Array as PropType<string[]>,
+        required: false,
     },
     change: {
         type: String,
-        required: true,
+        required: false,
     },
     index: {
         type: Number,
@@ -23,7 +23,7 @@ const charts: Ref<Chart[]> = ref([]);
 
 const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
     const gradient = ctx.createLinearGradient(0, 0, 0, 25);
-    gradient.addColorStop(0, change?.includes("-") ? "#DC2626b3" : "#4EDE80C4");
+    gradient.addColorStop(0,  change !== "0" ? change?.includes("-") ? "#DC2626b3" : "#4EDE80C4" : "#3B82F680");
     gradient.addColorStop(1, "transparent");
 
     ctx.fillStyle = gradient;
@@ -32,9 +32,9 @@ const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
     return gradient;
 }
 
-const createData = (sparkline: number[], change: string, gradient: CanvasGradient) => {
-    const sparklineData = sparkline ?? ["0", "0"];
-    const minValue = Math.min(...sparklineData.filter((val) => val != null));
+const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
+    const sparklineData = sparkline.map((val) => parseFloat(val) || 0); // Convierte cadenas a números
+    const minValue = Math.min(...sparklineData.filter((val) => val !== null));
     return {
         labels: sparklineData.map((_, i) => i + 1),
         datasets: [
@@ -45,11 +45,7 @@ const createData = (sparkline: number[], change: string, gradient: CanvasGradien
                 pointRadius: 0,
                 pointHoverBorderWidth: 1,
                 fill: true,
-                borderColor: change
-                    ? change.includes("-")
-                        ? "#DC2626"
-                        : "#4ADE80"
-                    : "#5F80B2",
+                borderColor: change !== '0' ? change.includes("-") ? "#DC2626" : "#4ADE80" : "#3B82F680",
                 backgroundColor: gradient,
             },
         ],
@@ -88,8 +84,7 @@ const createChartConfig = (data: ChartDataset): ChartConfiguration => {
     };
 };
 
-const renderChart = (sparkline: number[], change: string, index: number): void => {
-
+const renderChart = async (sparkline: string[], change: string, index: number) => {
     const canvas = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
     if (!canvas) return;
 
@@ -97,36 +92,23 @@ const renderChart = (sparkline: number[], change: string, index: number): void =
     if (!ctx) return;
 
     const gradient = createGradient(ctx, change);
+    if (!gradient) return;
+
     const data = createData(sparkline, change, gradient);
     const chartConfig = createChartConfig(data);
 
-    if (charts.value[index]) {
-        charts.value[index].destroy();
-        console.log(`Destroyed chart with ID 'Chart-${index}'`);
-    }
-
     const chart = new Chart(canvas, chartConfig);
     charts.value[index] = chart;
-
 };
 
 onMounted(() => {
-    renderChart(props.sparkline, props.change, props.index);
+    renderChart(props.sparkline || ['0', '0'], props.change || '0', props.index);
 });
-
-watch(props.sparkline, () => {
-    try {
-        renderChart(props.sparkline, props.change, props.index);
-    } catch (error) {
-        console.error('Error during chart rendering:', error);
-    }
-});
-
 </script>
 
 <template>
     <span>
-        <canvas :id="`Chart-${props.index}`" class="w-[50px] sm:w-[100px]" style="height: 20px;">
+        <canvas :id="`Chart-${props.index}`" class="w-[50px] sm:w-[100px] my-1" style="height: 20px;">
             Your browser does not support the canvas element.
         </canvas>
     </span>

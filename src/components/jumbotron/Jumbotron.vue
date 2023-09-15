@@ -83,9 +83,10 @@ const formatMonetaryAmount = (amount: number) => {
 <style>
 .v-popper--theme-tooltip .v-popper__inner{
     background: #fff;
-    color: rgb(19, 19, 19);
+    color: #2b2b2b;
     font-size: 14px;
     font-family: Quicksand, sans-serif;
+    text-align: center;
     margin-left: 10px;
     margin-right: 10px;
 }

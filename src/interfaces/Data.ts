@@ -15,7 +15,7 @@ export interface Coin {
     tier:           number;
     change:         string;
     rank:           number;
-    sparkline:      number[];
+    sparkline:      string[];
     lowVolume:      boolean;
     coinrankingUrl: string;
     "24hVolume":    string;
