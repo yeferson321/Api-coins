@@ -1,4 +1,4 @@
-export interface ChartDataset {
+export interface ChartInterface {
   labels: number[];
   datasets: {
     label: string;

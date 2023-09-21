@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
 import { Ref, onMounted, watch } from 'vue';
-import { getCoinsCurrencies } from '../../services/CoinService';
+import { getFavoritesCoinsCurrencies } from '../../services/CoinService';
 import { DataInterface, CoinInterface, StatsInterface } from '../../interfaces/DataInterface';
 import Jumbotron from '../jumbotron/Jumbotron.vue';
 import SearchCoins from '../searchCoins/SearchCoins.vue';
@@ -20,9 +20,9 @@ const offset: Ref<number> = ref(0);
 const isIconActive: Ref<boolean> = ref(false);
 const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 
-const searchCoinsCurrencies = async (offset: number): Promise<void> => {
+const searchCoinsCurrencies = async (): Promise<void> => {
     try {
-        const data: DataInterface = await getCoinsCurrencies(offset);
+        const data: DataInterface = await getFavoritesCoinsCurrencies();
         coins.value = data.coins;
         stats.value = data.stats;
     } catch (err: unknown) {
@@ -118,12 +118,12 @@ const formatCurrencyWithSuffix = (amount: number): string => {
 };
 
 onMounted(() => {
-    searchCoinsCurrencies(offset.value);
+    searchCoinsCurrencies();
 });
 
 watch(offset, () => {
     isLoading.value = true;
-    searchCoinsCurrencies(offset.value);
+    searchCoinsCurrencies();
 });
 </script>
 

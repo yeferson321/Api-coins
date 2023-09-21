@@ -1,9 +1,9 @@
-export interface Data {
-    stats: Stats;
-    coins: Coin[];
+export interface DataInterface {
+    stats: StatsInterface;
+    coins: CoinInterface[];
 }
 
-export interface Coin {
+export interface CoinInterface {
     uuid:           string;
     symbol:         string;
     name:           string;
@@ -22,7 +22,7 @@ export interface Coin {
     btcPrice:       string;
 }
 
-export interface Stats {
+export interface StatsInterface {
     total:          number;
     totalCoins:     number;
     totalMarkets:   number;

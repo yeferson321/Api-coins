@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { PropType, Ref, onMounted } from 'vue';
+import { Ref, onMounted } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
-import { ChartDataset } from '../../interfaces/ChartDataset';
+import { ChartInterface } from '../../interfaces/ChartInterface';
+
+const charts: Ref<Chart[]> = ref([]);
 
 const props = defineProps({
     sparkline: {
-        type: Array as PropType<string[]>,
+        type: Array as () => string[],
         required: false,
     },
     change: {
@@ -19,22 +21,20 @@ const props = defineProps({
     }
 });
 
-const charts: Ref<Chart[]> = ref([]);
-
-const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
-    const gradient = ctx.createLinearGradient(0, 0, 0, 25);
-    gradient.addColorStop(0,  change !== "0" ? change?.includes("-") ? "#DC2626b3" : "#4EDE80C4" : "#3B82F680");
+const createGradient = (ctx: CanvasRenderingContext2D, change: string | undefined) => { 
+    const gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 0, 24);
+    gradient.addColorStop(0, change ? change?.includes("-") ? "#DC2626b3" : "#4EDE80C4" : "#3B82F680");
     gradient.addColorStop(1, "transparent");
 
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 96, 37);
+    ctx.fillRect(0, 0, 100, 20);
 
     return gradient;
 }
 
-const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
-    const sparklineData = sparkline.map((val) => parseFloat(val) || 0); // Convierte cadenas a números
-    const minValue = Math.min(...sparklineData.filter((val) => val !== null));
+const createData = (sparkline: string[] | undefined, change: string | undefined, gradient: CanvasGradient) => {
+    const sparklineData: number[] = (sparkline ?? []).map(val => parseFloat(val) || 0);
+    const minValue: number = Math.min(...sparklineData);
     return {
         labels: sparklineData.map((_, i) => i + 1),
         datasets: [
@@ -45,14 +45,14 @@ const createData = (sparkline: string[], change: string, gradient: CanvasGradien
                 pointRadius: 0,
                 pointHoverBorderWidth: 1,
                 fill: true,
-                borderColor: change !== '0' ? change.includes("-") ? "#DC2626" : "#4ADE80" : "#3B82F680",
+                borderColor: change ? change.includes("-") ? "#DC2626" : "#4ADE80" : "#3B82F680",
                 backgroundColor: gradient,
             },
         ],
     };
 };
 
-const createChartConfig = (data: ChartDataset): ChartConfiguration => {
+const createChartConfig = (data: ChartInterface): ChartConfiguration => {
     return {
         type: "line",
         data,
@@ -82,27 +82,32 @@ const createChartConfig = (data: ChartDataset): ChartConfiguration => {
             },
         },
     };
-};
+}
 
-const renderChart = async (sparkline: string[], change: string, index: number) => {
-    const canvas = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
+const renderChart = async (sparkline: string[] | undefined, change: string | undefined, index: number) => {
+    const canvas: HTMLCanvasElement = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
     if (!ctx) return;
 
-    const gradient = createGradient(ctx, change);
+    const gradient: CanvasGradient = createGradient(ctx, change);
     if (!gradient) return;
 
-    const data = createData(sparkline, change, gradient);
+    const data: ChartInterface = createData(sparkline, change, gradient);
     const chartConfig = createChartConfig(data);
+
+    if (charts.value[index]) {
+        charts.value[index].destroy();
+    }
 
     const chart = new Chart(canvas, chartConfig);
     charts.value[index] = chart;
-};
+
+}
 
 onMounted(() => {
-    renderChart(props.sparkline || ['0', '0'], props.change || '0', props.index);
+    renderChart(props.sparkline, props.change, props.index);
 });
 </script>
 

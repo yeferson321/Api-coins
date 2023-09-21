@@ -9,9 +9,10 @@ createApp(App).use(router).use(FloatingVue, {
     themes: {
         'tooltip': {
             delay: {
-              show: 200,
+              show: 50,
               hide: 200,
             },
+            distance: 9,
         }
     },
 }).mount('#app')
