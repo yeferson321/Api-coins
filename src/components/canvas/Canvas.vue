@@ -106,9 +106,19 @@ const renderChart = async (sparkline: string[] | undefined, change: string | und
 
 }
 
+const removeChart = (uuid: string) => {
+    // Emitir el evento chart-removed con el uuid hacia el componente padre
+    console.log("este es el mensaje", uuid)
+}
+
+defineExpose({ removeChart });
+
+
 onMounted(() => {
     renderChart(props.sparkline, props.change, props.index);
+   
 });
+
 </script>
 
 <template>

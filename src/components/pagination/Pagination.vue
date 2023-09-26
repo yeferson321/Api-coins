@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { ref } from "@vue/reactivity";
-import { Ref, onMounted, watch } from "vue";
+import { Ref, watch, watchEffect } from "vue";
 
 const offset: Ref<number> = ref(0);
 const items: Ref<number> = ref(50);
 const pagesToShow: Ref<number[]> = ref([]);
+const nextLink: Ref<boolean> = ref(false)
+const previousLink: Ref<boolean> = ref(false)
 
 // Define component props using defineProps
 const props = defineProps({
     totalCoins: {
         type: Number,
         required: true,
+        default: 0,
     }
 });
 
@@ -21,33 +24,42 @@ const emits = defineEmits<{
 
 // Define a function to calculate and update the pages to be displayed
 const calculatePageNumbers = () => {
-  // Calculate the total number of pages
-  const totalPages: number = Math.ceil(props.totalCoins / items.value);
+    // Calculate the totalCoins number of pages
+    const totalCoinsPages: number = Math.ceil(props.totalCoins / items.value);
   
-  // Calculate the current page based on offset and items per page
-  const currentPage: number = (offset.value / items.value) + 1;
+    // Calculate the current page based on offset and items per page
+    const currentPage: number = (offset.value / items.value) + 1;
 
-  // Calculate the start and end pages to be displayed
-  let startPage: number = currentPage - 1;
-  let endPage: number = currentPage + 1;
+    // Calculate the start and end pages to be displayed
+    let startPage: number = currentPage - 1;
+    let endPage: number = currentPage + 1;
 
-  // Adjust startPage and endPage based on specific conditions
-  if (startPage < 3) {
-    startPage = 1;
-    endPage = 4;
-  } else if (endPage > totalPages - 2) {
-    endPage = totalPages;
-    startPage = Math.max(1, totalPages - 3);
-  } else if (endPage > totalPages) {
-    endPage = totalPages;
-  } 
+    if (totalCoinsPages <= 4) {
+        startPage = 1;
+        endPage = totalCoinsPages;
+    } else {
+      // Adjust startPage and endPage based on specific conditions
+        if (startPage < 3) {
+            startPage = 1;
+            endPage = 4;
+            nextLink.value = true
+            previousLink.value = false
+        } else if (endPage > totalCoinsPages - 2) {
+            endPage = totalCoinsPages;
+            startPage = Math.max(1, totalCoinsPages - 3);
+            nextLink.value = false
+            previousLink.value = true
+        } else {
+            nextLink.value = true
+            previousLink.value = true
+        }
+    }
 
-  // Generate an array of page numbers to be displayed
-  pagesToShow.value = Array.from({ length: endPage - startPage + 1 }, (_, i) => i + startPage);
+    // Generate an array of page numbers to be displayed
+    pagesToShow.value = Array.from({ length: endPage - startPage + 1 }, (_, i) => i + startPage);
 }
 
-// Call handleShowPage when the component is mounted
-onMounted(() => {
+watchEffect(() => {
     calculatePageNumbers();
 });
 
@@ -75,14 +87,14 @@ watch(offset, () => {
             <!-- Page number links -->
             <ul class="inline-flex items-center space-x-1 sm:space-x-1.5">
                 <!-- Display page 1 link if offset is greater than 100 -->
-                <li v-if="offset > 100">
+                <li v-if="previousLink">
                     <a href="#" class="flex items-center px-3 sm:px-3.5 h-9 text-sm text-white rounded-lg hover:bg-blue-600/30"
                         @click="offset = 0">
                         1
                     </a>
                 </li>
                 <!-- Display a separator line if offset is greater than 100 -->
-                <span v-if="offset > 100" class="h-4 w-px bg-gray-400" aria-hidden="true"></span>
+                <span v-if="previousLink" class="h-4 w-px bg-gray-400" aria-hidden="true"></span>
                 <!-- Loop through pagesToShow to display page number links -->
                 <li v-for="page in pagesToShow" :key="page">
                     <a href="#" :class="[page * items === offset + items ? 'bg-white hover:bg-white/90' : 'text-white hover:bg-blue-600/30', 'flex items-center px-3 sm:px-3.5 h-9 text-sm rounded-lg']"
@@ -90,10 +102,10 @@ watch(offset, () => {
                         {{ page }}
                     </a>
                 </li>
-                <!-- Display a separator line if offset is less than (totalCoins - 150) -->
-                <span v-if="offset < props.totalCoins - 150" class="h-4 w-px bg-gray-400" aria-hidden="true"></span>
-                <!-- Display the last page link if offset is less than (totalCoins - 150) -->
-                <li v-if="offset < props.totalCoins - 150">
+                <!-- Display a separator line if offset is less than (totalCoinsCoins - 150) -->
+                <span v-if="nextLink" class="h-4 w-px bg-gray-400" aria-hidden="true"></span>
+                <!-- Display the last page link if offset is less than (totalCoinsCoins - 150) -->
+                <li v-if="nextLink">
                     <a href="#" class="flex items-center px-3 sm:px-3.5 h-9 text-sm text-white rounded-lg hover:bg-blue-600/30"
                         @click="offset = Math.max(0, (Math.ceil(props.totalCoins / items) - 1) * items)">
                         {{ Math.ceil(props.totalCoins / items) }}

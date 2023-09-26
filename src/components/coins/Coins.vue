@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
 import { Ref, onMounted, watch } from 'vue';
-import { getCoinsCurrencies } from '../../services/CoinService';
+import { getAllCoins } from '../../services/CoinService';
 import { DataInterface, CoinInterface, StatsInterface } from '../../interfaces/DataInterface';
 import Jumbotron from '../jumbotron/Jumbotron.vue';
 import SearchCoins from '../searchCoins/SearchCoins.vue';
@@ -20,9 +20,9 @@ const offset: Ref<number> = ref(0);
 const isIconActive: Ref<boolean> = ref(false);
 const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 
-const searchCoinsCurrencies = async (offset: number): Promise<void> => {
+const searchCoinsCurrencies = async (offset: number) => {
     try {
-        const data: DataInterface = await getCoinsCurrencies(offset);
+        const data: DataInterface = await getAllCoins(offset);
         coins.value = data.coins;
         stats.value = data.stats;
     } catch (err: unknown) {
@@ -38,8 +38,7 @@ const searchCoinsCurrencies = async (offset: number): Promise<void> => {
  * @param uuid The UUID of the cryptocurrency to add or remove from favorites.
  */
 const addCoinFavorites = (uuid: string): void => {
-    isIconActive.value = !isIconActive.value;
-
+    
     if (localCoinStorage.value.includes(`&uuids[]=${uuid}`)) {
         // Si el UUID ya está en favoritos, quítalo
         localCoinStorage.value = localCoinStorage.value.filter(item => item !== `&uuids[]=${uuid}`);
@@ -58,7 +57,7 @@ const addCoinFavorites = (uuid: string): void => {
  * @returns The CSS class for the icon color.
  */
 const changeColorIcon = (uuid: string) => {
-    if (localCoinStorage.value.includes(uuid)) {
+    if (localCoinStorage.value.includes(`&uuids[]=${uuid}`)) {
         // If the cryptocurrency's UUID is in favorites, return a class for red color
         return 'fill-red-600'; // Red color class
     } else {
@@ -131,7 +130,7 @@ watch(offset, () => {
 
     <Jumbotron :stats="stats"></Jumbotron>
 
-    <SearchCoins :localCoinStorage="localCoinStorage" @emitsCoins="coins = $event" @emitsIsLoading="isLoading = $event" @emitsNoFound="noFound = $event" @emitsError="error = $event"  @emitsOffset="offset = $event"></SearchCoins>
+    <SearchCoins @emitsCoins="coins = $event" @emitsIsLoading="isLoading = $event" @emitsNoFound="noFound = $event" @emitsError="error = $event"  @emitsOffset="offset = $event"></SearchCoins>
 
     <section class="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8">
 
@@ -233,6 +232,6 @@ watch(offset, () => {
 
     </section>
 
-    <Pagination :totalCoins="stats.totalCoins" @offset="offset = $event"></Pagination>
+    <Pagination v-if="stats.total" :totalCoins="stats.total" @offset="offset = $event"></Pagination>
 
 </template>

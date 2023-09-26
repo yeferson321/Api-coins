@@ -84,7 +84,7 @@ const formatCurrencyWithSuffix = (amount: number): string => {
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base leading-9 text-white">{{ props.stats.total ? props.stats.total : 'Loading...' }}</span>
+                    <span class="text-sm sm:text-base leading-9 text-white">{{ props.stats.totalCoins ? props.stats.totalCoins : 'Loading...' }}</span>
                     <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">All Coins</span>
                 </li>
             </ul>

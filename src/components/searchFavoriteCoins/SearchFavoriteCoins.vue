@@ -34,7 +34,7 @@ const searchCoins = async () => {
         //console.error(err)
         emits("emitsCoins", []);
         emits("emitsError", true);
-    }
+    };
 };
 
 const inputSearch = () => {
@@ -56,7 +56,8 @@ const clearSearch = () => {
 };
 
 watchEffect(() => {
-    indicatorCount.value = localCoinStorage.value.length;
+    // const numberOfElements: number = props.localCoinStorage.length;
+    // indicatorCount.value = numberOfElements;
 });
 </script>
 

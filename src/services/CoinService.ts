@@ -1,28 +1,21 @@
 import axios from './Axios';
-import { DataInterface } from '../interfaces/DataInterface';
+import { ApiResponse } from '../interfaces/DataInterface';
+import { AxiosResponse } from 'axios';
 
-
-export const getCoinsCurrencies = async (offset: number = 0): Promise<DataInterface> => {
-
-    const response = await axios.get("/v2/coins?offset=" + offset);
+export const getAllCoins = async (offset: number = 0) => {
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}`);
     return response.data.data;
 };
 
-export const getSearchCoinsCurrencies = async (coin?: string): Promise<DataInterface> => {
-
-    const response = await axios.get("/v2/coins?search=" + coin);
+export const getSearchCoins = async (coin?: string) => {
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?search=${coin}`);
     return response.data.data;
 };
 
-export const getFavoritesCoinsCurrencies = async (): Promise<DataInterface> => {
+export const getFavoritesCoins = async (offset: number = 0) => {
+    const localCoinStorage: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const joinedCoins: string = localCoinStorage.join('');
 
-    const localCoinStorage = JSON.parse(localStorage.getItem('favorites') || "");
-
-    const joinedCoins = localCoinStorage.join('');
-
-
-    console.log(localCoinStorage)
-    
-    const response = await axios.get(`/v2/coins?${joinedCoins}`);
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}${joinedCoins}`);
     return response.data.data;
 };
