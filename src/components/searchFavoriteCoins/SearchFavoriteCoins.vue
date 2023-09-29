@@ -2,13 +2,12 @@
 import { ref } from "@vue/reactivity";
 import { Ref, watchEffect } from "vue";
 import { DataInterface, CoinInterface } from "../../interfaces/DataInterface";
-import { getSearchCoins } from "../../services/CoinService";
+import { getSearchFavoritesCoins } from "../../services/CoinService";
 
 const inputRef: Ref<HTMLInputElement | null> = ref(null);
 const showClear: Ref<boolean> = ref(false);
-const indicatorCount: Ref<number> = ref(0);
-const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 let timeoutId: NodeJS.Timeout | undefined;
+const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 
 const emits = defineEmits<{
     (event: "emitsCoins", value: CoinInterface[]): void;
@@ -19,23 +18,29 @@ const emits = defineEmits<{
 }>();
 
 const searchCoins = async () => {
-    try {
-        const data: DataInterface = await getSearchCoins(inputRef.value?.value);       
-        if (data.coins.length) {
+    const elementosCoincidentes = localCoinStorage.value.filter(item => item.includes(inputRef.value?.value?.toLowerCase() ?? ""));
+
+    if (elementosCoincidentes.length > 0) {
+        try {
+            const data = await getSearchFavoritesCoins(0, elementosCoincidentes);
+
             emits("emitsCoins", data.coins);
             emits("emitsNoFound", false);
             emits("emitsIsLoading", false);
-        } else {
+
+        } catch (error) {
+            //console.error(err)
             emits("emitsCoins", []);
-            emits("emitsNoFound", true);
-            emits("emitsIsLoading", false);
-        };
-    } catch (err: unknown) {
-        //console.error(err)
+            emits("emitsError", true);
+        }
+    } else {
+        // No hay elementos coincidentes
         emits("emitsCoins", []);
-        emits("emitsError", true);
-    };
+        emits("emitsNoFound", true);
+        emits("emitsIsLoading", false);
+    }
 };
+
 
 const inputSearch = () => {
     showClear.value = inputRef.value?.value !== "";
@@ -81,14 +86,18 @@ watchEffect(() => {
                     </button>
                 </div>
             </div>
-            <a href="/favorites" class="relative block sm:inline-flex sm:items-center sm:text-white p-1.5 sm:px-4 sm:py-1.5 sm:rounded-lg sm:bg-blue-600 sm:hover:bg-blue-700 sm:transition sm:duration-450 sm:ease-in-out">
-                <span class="hidden sm:block">Favorites</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 sm:w-6 h-7 sm:h-6 sm:ml-2 fill-white">
-                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+            <a href="/" class="sm:inline-flex sm:items-center sm:text-white p-1 sm:px-4 sm:py-1.5 sm:rounded-lg sm:bg-blue-600 sm:hover:bg-blue-700 sm:transition sm:duration-450 sm:ease-in-out">
+                <span class="hidden sm:block">All coins</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 sm:w-6 h-7 sm:h-6 sm:ml-2 stroke-white stroke-2" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M6 6h8a3 3 0 0 1 0 6a3 3 0 0 1 0 6h-8"></path>
+                    <path d="M8 6l0 12"></path>
+                    <path d="M8 12l6 0"></path>
+                    <path d="M9 3l0 3"></path>
+                    <path d="M13 3l0 3"></path>
+                    <path d="M9 18l0 3"></path>
+                    <path d="M13 18l0 3"></path>
                 </svg>
-                <div v-if="indicatorCount" class="absolute inline-flex items-center justify-center w-5 sm:w-6 h-5 sm:h-6 text-xs font-bold text-white bg-blue-600 border-2 rounded-full bottom-1 sm:-top-2 -right-0 sm:-right-2 border-gray-900">
-                    {{ indicatorCount }}
-                </div>
             </a>
         </div>
     </div>

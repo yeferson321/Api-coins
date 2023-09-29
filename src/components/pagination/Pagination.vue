@@ -1,31 +1,24 @@
 <script setup lang="ts">
 import { ref } from "@vue/reactivity";
 import { Ref, watch, watchEffect } from "vue";
+import { useStatsStore } from '../../stores/statsStore'
 
+const stats = useStatsStore().stats
 const offset: Ref<number> = ref(0);
 const items: Ref<number> = ref(50);
 const pagesToShow: Ref<number[]> = ref([]);
 const nextLink: Ref<boolean> = ref(false)
 const previousLink: Ref<boolean> = ref(false)
 
-// Define component props using defineProps
-const props = defineProps({
-    totalCoins: {
-        type: Number,
-        required: true,
-        default: 0,
-    }
-});
-
 // Define custom emits for the component
 const emits = defineEmits<{
-    (event: "offset", value: number): void;
+    (event: "emitsOffset", value: number): void;
 }>();
 
 // Define a function to calculate and update the pages to be displayed
 const calculatePageNumbers = () => {
     // Calculate the totalCoins number of pages
-    const totalCoinsPages: number = Math.ceil(props.totalCoins / items.value);
+    const totalCoinsPages: number = Math.ceil(stats.total / items.value);
   
     // Calculate the current page based on offset and items per page
     const currentPage: number = (offset.value / items.value) + 1;
@@ -65,7 +58,7 @@ watchEffect(() => {
 
 // Watch the offset for changes and emit an event when it changes
 watch(offset, () => {
-    emits('offset', offset.value);
+    emits('emitsOffset', offset.value);
     calculatePageNumbers();
 });
 </script>
@@ -107,15 +100,15 @@ watch(offset, () => {
                 <!-- Display the last page link if offset is less than (totalCoinsCoins - 150) -->
                 <li v-if="nextLink">
                     <a href="#" class="flex items-center px-3 sm:px-3.5 h-9 text-sm text-white rounded-lg hover:bg-blue-600/30"
-                        @click="offset = Math.max(0, (Math.ceil(props.totalCoins / items) - 1) * items)">
-                        {{ Math.ceil(props.totalCoins / items) }}
+                        @click="offset = Math.max(0, (Math.ceil(stats.totalCoins / items) - 1) * items)">
+                        {{ Math.ceil(stats.totalCoins / items) }}
                     </a>
                 </li>
             </ul>
             <!-- Next page button -->
             <div class="ml-3 sm:ml-5">
-                <a href="#" :class="[offset < props.totalCoins - items ? 'bg-blue-600 hover:bg-blue-700' : 'border-blue-600 border cursor-default', 'inline-flex items-center px-3 sm:px-4 h-9 text-sm text-white rounded-full']"
-                    @click="offset < props.totalCoins - items && (offset += items)">
+                <a href="#" :class="[offset < stats.totalCoins - items ? 'bg-blue-600 hover:bg-blue-700' : 'border-blue-600 border cursor-default', 'inline-flex items-center px-3 sm:px-4 h-9 text-sm text-white rounded-full']"
+                    @click="offset < stats.totalCoins - items && (offset += items)">
                     <span class="hidden sm:block">Next</span>
                     <svg class="w-3 sm:w-3.5 h-3 sm:h-3.5 sm:ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9" />

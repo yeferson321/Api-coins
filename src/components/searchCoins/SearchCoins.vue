@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { ref } from "@vue/reactivity";
-import { Ref, watchEffect } from "vue";
+import { Ref } from "vue";
 import { DataInterface, CoinInterface } from "../../interfaces/DataInterface";
 import { getSearchCoins } from "../../services/CoinService";
 
 const inputRef: Ref<HTMLInputElement | null> = ref(null);
 const showClear: Ref<boolean> = ref(false);
-const indicatorCount: Ref<number> = ref(0);
-const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 let timeoutId: NodeJS.Timeout | undefined;
+
+// Define component props using defineProps
+const props = defineProps({
+    localCoinStorage: {
+        type: Array as () => string[],
+        required: true,
+    }
+})
 
 const emits = defineEmits<{
     (event: "emitsCoins", value: CoinInterface[]): void;
@@ -54,10 +60,6 @@ const clearSearch = () => {
         emits("emitsOffset", -0);
     };
 };
-
-watchEffect(() => {
-    indicatorCount.value = localCoinStorage.value.length;
-});
 </script>
 
 <template>
@@ -80,13 +82,13 @@ watchEffect(() => {
                     </button>
                 </div>
             </div>
-            <a href="/favorites" class="relative block sm:inline-flex sm:items-center sm:text-white p-1.5 sm:px-4 sm:py-1.5 sm:rounded-lg sm:bg-blue-600 sm:hover:bg-blue-700 sm:transition sm:duration-450 sm:ease-in-out">
+            <a href="/favorites" class="relative block sm:inline-flex sm:items-center sm:text-white p-1 sm:px-4 sm:py-1.5 sm:rounded-lg sm:bg-blue-600 sm:hover:bg-blue-700 sm:transition sm:duration-450 sm:ease-in-out">
                 <span class="hidden sm:block">Favorites</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 sm:w-6 h-7 sm:h-6 sm:ml-2 fill-white">
                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                 </svg>
-                <div v-if="indicatorCount" class="absolute inline-flex items-center justify-center w-5 sm:w-6 h-5 sm:h-6 text-xs font-bold text-white bg-blue-600 border-2 rounded-full bottom-1 sm:-top-2 -right-0 sm:-right-2 border-gray-900">
-                    {{ indicatorCount }}
+                <div v-if="props.localCoinStorage.length" class="absolute inline-flex items-center justify-center w-5 sm:w-6 h-5 sm:h-6 text-xs font-bold text-white bg-blue-600 border-2 rounded-full bottom-1 sm:-top-2 -right-1 sm:-right-2 border-gray-900">
+                    {{ props.localCoinStorage.length }}
                 </div>
             </a>
         </div>

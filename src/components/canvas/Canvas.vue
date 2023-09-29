@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { Ref, onMounted } from 'vue';
+import { Ref, onMounted, watch } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { ChartInterface } from '../../interfaces/ChartInterface';
 
@@ -84,12 +84,23 @@ const createChartConfig = (data: ChartInterface): ChartConfiguration => {
     };
 }
 
-const renderChart = async (sparkline: string[] | undefined, change: string | undefined, index: number) => {
+
+const renderChart = (sparkline: string[] | undefined, change: string | undefined, index: number) => {
+
     const canvas: HTMLCanvasElement = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
     if (!canvas) return;
 
+    // Obtén el contexto del lienzo
     const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Ajusta la resolución para pantallas Retina
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * ratio;
+    canvas.height = canvas.clientHeight * ratio;
+
+    // Escala el contexto para compensar la resolución
+    ctx.scale(ratio, ratio);
 
     const gradient: CanvasGradient = createGradient(ctx, change);
     if (!gradient) return;
@@ -103,22 +114,15 @@ const renderChart = async (sparkline: string[] | undefined, change: string | und
 
     const chart = new Chart(canvas, chartConfig);
     charts.value[index] = chart;
-
 }
-
-const removeChart = (uuid: string) => {
-    // Emitir el evento chart-removed con el uuid hacia el componente padre
-    console.log("este es el mensaje", uuid)
-}
-
-defineExpose({ removeChart });
-
 
 onMounted(() => {
     renderChart(props.sparkline, props.change, props.index);
-   
 });
 
+watch(() => props.sparkline, () => {
+    renderChart(props.sparkline, props.change, props.index);
+});
 </script>
 
 <template>

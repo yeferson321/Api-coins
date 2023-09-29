@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { StatsInterface } from '../../interfaces/DataInterface';
+import { useStatsStore } from '../../stores/statsStore'
 
-// Define component props using defineProps
-const props = defineProps({
-    stats: {
-        type: Object as () => StatsInterface,
-        required: true,
-    }
-});
+const { stats } = useStatsStore()
 
 /**
  * This function takes a number and formats it as a currency amount with an
@@ -40,6 +34,8 @@ const formatCurrencyWithSuffix = (amount: number): string => {
     // Format the amount with the currency symbol, rounded to the specified precision, and the determined suffix
     return `${symbol} ${amount.toFixed(precision)} ${suffixes[index]}`;
 };
+
+
 </script>
 
 <template>
@@ -59,7 +55,7 @@ const formatCurrencyWithSuffix = (amount: number): string => {
                 <!-- Market Cap -->
                 <li class="flex flex-col items-center">
                     <span class="inline-flex text-sm sm:text-base leading-9 whitespace-nowrap text-white">
-                        {{ props.stats.totalMarketCap ? formatCurrencyWithSuffix(parseInt(props.stats.totalMarketCap)) : 'Loading...' }}
+                        {{ stats.totalMarketCap ? formatCurrencyWithSuffix(parseInt(stats.totalMarketCap)) : 'Loading...' }}
                         <button class="focus:outline-none" type="button" v-tooltip="'The market cap of All coins combined.'">
                             <svg class="w-5 h-5 ml-2 text-blue-500 hover:text-blue-600" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
@@ -72,7 +68,7 @@ const formatCurrencyWithSuffix = (amount: number): string => {
                 <!-- Trading Volume -->
                 <li class="flex flex-col items-center">
                     <span class="inline-flex text-sm sm:text-base leading-9 whitespace-nowrap text-white">
-                        {{ props.stats.total24hVolume ? formatCurrencyWithSuffix(parseInt(props.stats.total24hVolume)) : 'Loading...' }}
+                        {{ stats.total24hVolume ? formatCurrencyWithSuffix(parseInt(stats.total24hVolume)) : 'Loading...' }}
                         <button class="focus:outline-none" type="button" v-tooltip="'The 24-hour trading volume of All coins combined.'">
                             <svg class="w-5 h-5 ml-2 text-blue-500 hover:text-blue-600" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
@@ -84,7 +80,7 @@ const formatCurrencyWithSuffix = (amount: number): string => {
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base leading-9 text-white">{{ props.stats.totalCoins ? props.stats.totalCoins : 'Loading...' }}</span>
+                    <span class="text-sm sm:text-base leading-9 text-white">{{ stats.total ? stats.total : 'Loading...' }}</span>
                     <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">All Coins</span>
                 </li>
             </ul>
@@ -111,4 +107,4 @@ const formatCurrencyWithSuffix = (amount: number): string => {
 .v-popper--theme-tooltip .v-popper__arrow-outer {
     border-color: #fff;
 }
-</style>../../interfaces/DataInterface
+</style>../../stores/statsStore

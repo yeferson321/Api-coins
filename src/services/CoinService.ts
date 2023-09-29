@@ -13,9 +13,24 @@ export const getSearchCoins = async (coin?: string) => {
 };
 
 export const getFavoritesCoins = async (offset: number = 0) => {
+    console.time()
     const localCoinStorage: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const joinedCoins: string = localCoinStorage.join('');
+    const cleanArray = localCoinStorage.map(item => item.replace(/&name=.*/, ''));
+    const joinedCoins = cleanArray.join('');
 
+    console.timeEnd()
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}${joinedCoins}`);
+    return response.data.data;
+};
+
+
+export const getSearchFavoritesCoins = async (offset: number = 0, searchCoinStorage: string[]) => {
+    console.time()
+
+    const cleanArray = searchCoinStorage.map(item => item.replace(/&name=.*/, ''));
+    const joinedCoins = cleanArray.join('');
+
+    console.timeEnd()
     const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}${joinedCoins}`);
     return response.data.data;
 };
