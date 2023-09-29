@@ -1,40 +1,8 @@
 <script setup lang="ts">
+import { formatCurrencyWithSuffix } from '../../utils/helpers';
 import { useStatsStore } from '../../stores/statsStore'
 
 const { stats } = useStatsStore()
-
-/**
- * This function takes a number and formats it as a currency amount with an
- * appropriate suffix such as "K" (thousand), "Million" (million), "Billion" (billion),
- * "Trillion" (trillion).
- * @param {number} amount - The numeric amount to be formatted.
- * @returns {string} The formatted amount in currency format with suffix.
-*/
-const formatCurrencyWithSuffix = (amount: number): string => {
-    // Array of suffixes for large numbers (K, Million, Billion, Trillion, etc.)
-    const suffixes: string[] = ["", "K", "Million", "Billion", "Trillion"];
-
-    // Number of decimal places to round the amount to
-    const precision: number = 2;
-
-    // Currency symbol to be prepended to the formatted amount
-    const symbol: string = "$";
-
-    // Initialize an index to track the appropriate suffix
-    let index: number = 0;
-
-    // Check if the amount is greater than or equal to 1000 and not exceeding the available suffixes
-    while (amount >= 1000 && index < suffixes.length - 1) {
-        // Divide the amount by 1000 (e.g., 10000 becomes 10)
-        amount /= 1000;
-        // Move to the next suffix in the array
-        index++;
-    };
-
-    // Format the amount with the currency symbol, rounded to the specified precision, and the determined suffix
-    return `${symbol} ${amount.toFixed(precision)} ${suffixes[index]}`;
-};
-
 
 </script>
 
@@ -105,6 +73,6 @@ const formatCurrencyWithSuffix = (amount: number): string => {
 }
 
 .v-popper--theme-tooltip .v-popper__arrow-outer {
-    border-color: #fff;
+    border-color: #0a0000;
 }
-</style>../../stores/statsStore
+</style>

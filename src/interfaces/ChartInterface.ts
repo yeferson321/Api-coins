@@ -10,4 +10,4 @@ export interface ChartInterface {
     borderColor: string;
     backgroundColor: CanvasGradient;
   }[];
-}
+};

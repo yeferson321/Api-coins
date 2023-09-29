@@ -1,12 +1,12 @@
 export interface ApiResponse {
     status: string;
     data: DataInterface;
-}
+};
 
 export interface DataInterface {
     stats: StatsInterface;
     coins: CoinInterface[];
-}
+};
 
 export interface CoinInterface {
     uuid: string;
@@ -25,7 +25,7 @@ export interface CoinInterface {
     coinrankingUrl: string;
     "24hVolume": string;
     btcPrice: string;
-}
+};
 
 export interface StatsInterface {
     total: number;
@@ -34,4 +34,4 @@ export interface StatsInterface {
     totalExchanges: number;
     totalMarketCap: string;
     total24hVolume: string;
-}
+};

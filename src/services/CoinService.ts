@@ -1,9 +1,12 @@
 import axios from './Axios';
 import { ApiResponse } from '../interfaces/DataInterface';
 import { AxiosResponse } from 'axios';
+import { useOffsetStore } from '../stores/offsetStore'
 
-export const getAllCoins = async (offset: number = 0) => {
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}`);
+const offset = useOffsetStore();
+
+export const getAllCoins = async () => {
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}`);
     return response.data.data;
 };
 
@@ -12,25 +15,24 @@ export const getSearchCoins = async (coin?: string) => {
     return response.data.data;
 };
 
-export const getFavoritesCoins = async (offset: number = 0) => {
+export const getFavoritesCoins = async () => {
     console.time()
     const localCoinStorage: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
     const cleanArray = localCoinStorage.map(item => item.replace(/&name=.*/, ''));
     const joinedCoins = cleanArray.join('');
 
     console.timeEnd()
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}${joinedCoins}`);
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}${joinedCoins}`);
     return response.data.data;
 };
 
-
-export const getSearchFavoritesCoins = async (offset: number = 0, searchCoinStorage: string[]) => {
+export const getSearchFavoritesCoins = async (searchCoinStorage: string[]) => {
     console.time()
 
     const cleanArray = searchCoinStorage.map(item => item.replace(/&name=.*/, ''));
     const joinedCoins = cleanArray.join('');
 
     console.timeEnd()
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset}${joinedCoins}`);
+    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}${joinedCoins}`);
     return response.data.data;
 };
