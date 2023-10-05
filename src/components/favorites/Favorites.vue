@@ -1,40 +1,43 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { Ref, onMounted, watch } from 'vue';
+import { Ref, toRefs, onMounted, watch } from 'vue';
 import { changeColorIcon, convertToDollar, formatCurrencyWithSuffix } from '../../utils/helpers';
 import { getFavoritesCoins } from '../../services/CoinService';
 import { DataInterface, CoinInterface } from '../../interfaces/DataInterface';
-import { useStatsStore } from '../../stores/statsStore'
-import { useOffsetStore } from '../../stores/offsetStore'
+import { useStatsStore } from '../../stores/statsStore';
+import { useOffsetStore } from '../../stores/offsetStore';
+import { useCoinStorageStore } from '../../stores/coinStorage';
 import SearchFavoriteCoins from '../searchFavoriteCoins/SearchFavoriteCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
 import NoFound from '../noFound/NoFound.vue';
 import NoFavorites from '../noFavorites/NoFavorites.vue';
 import Error from '../error/Error.vue';
 import Canvas from '../canvas/Canvas.vue';
-import Pagination from '../pagination/Pagination.vue';
 
+const { addStats } = useStatsStore();
+const { offset } = toRefs(useOffsetStore());
+const { coinStorage, removeCoinFavoriteStorage } = toRefs(useCoinStorageStore());
 const coins: Ref<CoinInterface[]> = ref([]);
-const { stats, addState } = useStatsStore();
-const offset = useOffsetStore();
 const isLoading: Ref<boolean> = ref(true);
 const noFound: Ref<boolean> = ref(false);
 const noFavorites: Ref<boolean> = ref(false);
 const error: Ref<boolean> = ref(false);
 const isIconActive: Ref<boolean> = ref(false);
-const localCoinStorage: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 
 const searchFavoriteCoins = async () => {
-    if (localCoinStorage.value.length) {
+    if (coinStorage.value.length) {
         isLoading.value = true;
         try {
-            const data: DataInterface = await getFavoritesCoins();
+            const data: DataInterface = await getFavoritesCoins(offset.value);
             coins.value = data.coins;
-            addState(data.stats);
+            addStats(data.stats);
+            error.value = false;
+            console.log(coins.value)
         } catch (err: unknown) {
             //console.error(err)
             error.value = true;
         } finally {
+            noFound.value = false
             isLoading.value = false;
         };
     } else {
@@ -44,11 +47,7 @@ const searchFavoriteCoins = async () => {
 };
 
 const removeCoinFavorite = (uuid: string, name: string) => {
-    if (!localCoinStorage.value.includes(`&uuids[]=${uuid}&name=${name.toLowerCase()}`)) return;
-
-    localCoinStorage.value = localCoinStorage.value.filter(item => item !== `&uuids[]=${uuid}&name=${name.toLowerCase()}`);
-    localStorage.setItem('favorites', JSON.stringify(localCoinStorage.value));
-
+    removeCoinFavoriteStorage.value(uuid, name)
     coins.value = coins.value.filter(crypto => crypto.uuid !== uuid);
 };
 
@@ -56,17 +55,17 @@ onMounted(() => {
     searchFavoriteCoins();
 });
 
-watch(() => offset.offset, () => {
+watch(() => offset.value, () => {
     searchFavoriteCoins();
 });
 </script>
 
 <template>
-    <SearchFavoriteCoins :coins="coins" @emitsCoins="coins = $event" @emitsIsLoading="isLoading = $event"
+
+    <SearchFavoriteCoins @emitsCoins="coins = $event" @emitsIsLoading="isLoading = $event"
         @emitsNoFound="noFound = $event" @emitsError="error = $event"></SearchFavoriteCoins>
 
-    <section class="mx-auto max-w-7xl min-h-screen  px-2.5 sm:px-6 lg:px-8">
-
+    <section class="mx-auto max-w-7xl min-h-[50vh] px-2.5 sm:px-6 lg:px-8">
 
         <table class="table-auto w-full text-[12px] sm:text-sm text-left text-white">
 
@@ -92,7 +91,6 @@ watch(() => offset.offset, () => {
 
             <tbody>
 
-
                 <IsLoading v-if="isLoading"></IsLoading>
 
                 <tr v-else class="border-b border-gray-700" v-for="(cryptos, index) in coins" :key="index">
@@ -105,7 +103,7 @@ watch(() => offset.offset, () => {
                                 <button class="focus:outline-none" type="button"
                                     @click="removeCoinFavorite(cryptos.uuid, cryptos.name)">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        :class="['w-4 h-4 inline-block align-text-bottom', changeColorIcon(cryptos.uuid, cryptos.name, localCoinStorage), isIconActive ?? 'fill-blue-500']">
+                                        :class="['w-4 h-4 inline-block align-text-bottom', changeColorIcon(cryptos.uuid, cryptos.name, coinStorage), isIconActive ?? 'fill-blue-500']">
                                         <path
                                             d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                     </svg>
@@ -137,9 +135,9 @@ watch(() => offset.offset, () => {
 
                     <td class="px-1 py-2">
                         <div class="flex flex-col">
-                            <span class="whitespace-nowrap">{{ convertToDollar(parseInt(cryptos.price)) }}</span>
+                            <span class="whitespace-nowrap">{{ convertToDollar(parseFloat(cryptos.price)) }}</span>
                             <span class="block sm:hidden text-gray-400 whitespace-nowrap">{{
-                                formatCurrencyWithSuffix(parseInt(cryptos.marketCap)) }}</span>
+                                formatCurrencyWithSuffix(parseFloat(cryptos.marketCap)) }}</span>
                         </div>
                     </td>
 
@@ -151,8 +149,7 @@ watch(() => offset.offset, () => {
                         <div class="flex flex-col items-end">
                             <span
                                 :class="[cryptos.change ? cryptos.change.includes('-') ? 'text-red-600' : 'text-green-400' : 'text-blue-500/50']">
-                                {{ cryptos.change ? cryptos.change.includes('-') ? cryptos.change : '+' + cryptos.change :
-                                    "--%" }}
+                                {{ cryptos.change ? cryptos.change.includes('-') ? cryptos.change : '+' + cryptos.change : "--%" }}
                             </span>
                             <Canvas :sparkline="cryptos.sparkline" :change="cryptos.change" :index="index"></Canvas>
                         </div>
@@ -171,6 +168,5 @@ watch(() => offset.offset, () => {
 
     </section>
 
-    <Pagination v-if="stats.total"></Pagination>
-    
+   
 </template>

@@ -10,10 +10,12 @@ const props = defineProps({
     sparkline: {
         type: Array as () => string[],
         required: false,
+        default: []
     },
     change: {
         type: String,
         required: false,
+        default: ""
     },
     index: {
         type: Number,
@@ -21,7 +23,7 @@ const props = defineProps({
     }
 });
 
-const createGradient = (ctx: CanvasRenderingContext2D, change: string | undefined) => { 
+const createGradient = (ctx: CanvasRenderingContext2D, change: string) => { 
     const gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 0, 24);
     gradient.addColorStop(0, change ? change?.includes("-") ? "#DC2626b3" : "#4EDE80C4" : "#3B82F680");
     gradient.addColorStop(1, "transparent");
@@ -32,7 +34,7 @@ const createGradient = (ctx: CanvasRenderingContext2D, change: string | undefine
     return gradient;
 }
 
-const createData = (sparkline: string[] | undefined, change: string | undefined, gradient: CanvasGradient) => {
+const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
     const sparklineData: number[] = (sparkline ?? []).map(val => parseFloat(val) || 0);
     const minValue: number = Math.min(...sparklineData);
     return {
@@ -85,8 +87,7 @@ const createChartConfig = (data: ChartInterface): ChartConfiguration => {
 }
 
 
-const renderChart = (sparkline: string[] | undefined, change: string | undefined, index: number) => {
-
+const renderChart = (sparkline: string[], change: string, index: number) => {
     const canvas: HTMLCanvasElement = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
     if (!canvas) return;
 

@@ -18,6 +18,7 @@ export const convertToDollar = (amount: number): string => {
 };
 
 export const formatCurrencyWithSuffix = (amount: number): string => {
+    console.log(amount)
     const suffixes: string[] = ["", "K", "Million", "Billion", "Trillion"];
     const precision: number = 2;
     const symbol: string = "$";

@@ -1,38 +1,35 @@
 import axios from './Axios';
 import { ApiResponse } from '../interfaces/DataInterface';
 import { AxiosResponse } from 'axios';
-import { useOffsetStore } from '../stores/offsetStore'
 
-const offset = useOffsetStore();
+const processCoinsRequest = async (url: string) => {
+  const response: AxiosResponse<ApiResponse> = await axios.get(url);
+  return response.data.data;
+};
 
-export const getAllCoins = async () => {
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}`);
-    return response.data.data;
+export const getAllCoins = async (offset: number) => {
+  const url: string = `/v2/coins?offset=${offset}`;
+  return processCoinsRequest(url);
 };
 
 export const getSearchCoins = async (coin?: string) => {
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?search=${coin}`);
-    return response.data.data;
+  const url: string = `/v2/coins?search=${coin}`;
+  return processCoinsRequest(url);
 };
 
-export const getFavoritesCoins = async () => {
-    console.time()
-    const localCoinStorage: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const cleanArray = localCoinStorage.map(item => item.replace(/&name=.*/, ''));
-    const joinedCoins = cleanArray.join('');
+export const getFavoritesCoins = async (offset: number) => {
+  const localCoinStorage: string[] = JSON.parse(localStorage.getItem('favorites') || '[]');
+  const cleanArray: string[] = localCoinStorage.map((item) => item.replace(/&name=.*/, ''));
+  const joinedCoins: string = cleanArray.join('');
 
-    console.timeEnd()
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}${joinedCoins}`);
-    return response.data.data;
+  const url: string = `/v2/coins?offset=${offset}${joinedCoins}`;
+  return processCoinsRequest(url);
 };
 
-export const getSearchFavoritesCoins = async (searchCoinStorage: string[]) => {
-    console.time()
+export const getSearchFavoritesCoins = async (offset: number, searchCoinStorage: string[]) => {
+  const cleanArray: string[] = searchCoinStorage.map((item) => item.replace(/&name=.*/, ''));
+  const joinedCoins: string = cleanArray.join('');
 
-    const cleanArray = searchCoinStorage.map(item => item.replace(/&name=.*/, ''));
-    const joinedCoins = cleanArray.join('');
-
-    console.timeEnd()
-    const response: AxiosResponse<ApiResponse> = await axios.get(`/v2/coins?offset=${offset.offset}${joinedCoins}`);
-    return response.data.data;
+  const url: string = `/v2/coins?offset=${offset}${joinedCoins}`;
+  return processCoinsRequest(url);
 };
