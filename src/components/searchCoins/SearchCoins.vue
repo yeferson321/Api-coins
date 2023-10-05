@@ -10,7 +10,7 @@ const { updateOffset } = useOffsetStore();
 const coinStorage = useCoinStorageStore();
 const inputRef: Ref<HTMLInputElement | null> = ref(null);
 const showClear: Ref<boolean> = ref(false);
-const timeoutId: Ref<NodeJS.Timeout | undefined> = ref(undefined);
+const timeoutId = ref();
 
 const emits = defineEmits<{
     (event: "emitsCoins", value: CoinInterface[]): void;

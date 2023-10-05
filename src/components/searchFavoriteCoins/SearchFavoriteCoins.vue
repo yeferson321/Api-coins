@@ -10,7 +10,8 @@ const { offset, updateOffset } = toRefs(useOffsetStore());
 const coinStorage = useCoinStorageStore();
 const inputRef: Ref<HTMLInputElement | null> = ref(null);
 const showClear: Ref<boolean> = ref(false);
-let timeoutId: NodeJS.Timeout | undefined;
+const timeoutId = ref();
+
 
 const emits = defineEmits<{
     (event: "emitsCoins", value: CoinInterface[]): void;
@@ -45,8 +46,8 @@ const searchCoins = async () => {
 
 const inputSearch = () => {
     showClear.value = inputRef.value?.value !== "";
-    timeoutId !== undefined && clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
+    timeoutId !== undefined && clearTimeout(timeoutId.value);
+    timeoutId.value = setTimeout(() => {
         searchCoins();
     }, 500);
 };
