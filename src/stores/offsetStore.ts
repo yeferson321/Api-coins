@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia';
+import { Ref, ref } from 'vue';
 
-export const useOffsetStore = defineStore('offset', {
-  state: () => ({
-    offset: 0 as number,
-  }),
+export const useOffsetStore = defineStore('offsetStore', () => {
+  const offset: Ref<number> = ref(0);
 
-  actions: {
-    updateOffset(newOffset: number) {
-      this.offset = Object.is(this.offset, newOffset) ? -newOffset : newOffset;
-    }
-  }
+  function updateOffset(newOffset: number) {
+    offset.value = Object.is(offset.value, newOffset) ? -newOffset : newOffset;
+  };
+
+  return { offset, updateOffset };
 });
-

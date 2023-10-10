@@ -1,40 +1,31 @@
 <script setup lang="ts">
-import { ref } from '@vue/reactivity';
-import { Ref, toRefs, watchEffect } from 'vue';
-import { changeColorIcon, convertToDollar, formatCurrencyWithSuffix } from '../../utils/helpers';
+import { Ref, ref, toRefs, watchEffect } from 'vue';
 import { getAllCoins } from '../../services/CoinService';
-import { DataInterface, CoinInterface } from '../../interfaces/DataInterface';
-import { useStatsStore } from '../../stores/statsStore';
+
+import { DataInterface } from '../../interfaces/DataInterface';
+import { useCoinsStore } from '../../stores/coinsStore';
 import { useOffsetStore } from '../../stores/offsetStore';
-import { useCoinStorageStore } from '../../stores/coinStorage'
-import SearchCoins from '../searchCoins/SearchCoins.vue';
+import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+
 import IsLoading from '../isLoading/IsLoading.vue';
 import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
 import Canvas from '../canvas/Canvas.vue';
+import { formatAmountToDollar, formatAmountCoins } from '../../helpers/amountFormatting';
 
-const { addStats } = useStatsStore();
+const coinsStore = useCoinsStore();
+const { coins, isLoading, noFound, error } = toRefs( coinsStore );
 const { offset } = toRefs(useOffsetStore());
-const { coinStorage, addCoinStorage }  = toRefs(useCoinStorageStore());
-const coins: Ref<CoinInterface[]> = ref([]);
-const isLoading: Ref<boolean> = ref(true);
-const noFound: Ref<boolean> = ref(false);
-const error: Ref<boolean> = ref(false);
+const favoriteCoinStore = useFavoriteCoinStore();
 const isIconActive: Ref<boolean> = ref(false);
 
 const searchCoinsCurrencies = async () => {
-    isLoading.value = true;
     try {
-        const data: DataInterface = await getAllCoins(offset.value);
-        coins.value = data.coins;
-        addStats(data.stats);
-        error.value = false;
+        const { coins, stats }: DataInterface = await getAllCoins(offset.value);
+        coinsStore.responseCoins(coins, stats);
     } catch (err: unknown) {
-        //console.error(err)
-        error.value = true;
-    } finally {
-        noFound.value = false
-        isLoading.value = false;
+        //console.error(err);
+        coinsStore.responseError();
     };
 };
 
@@ -44,9 +35,6 @@ watchEffect(() => {
 </script>
 
 <template>
-
-    <SearchCoins @emitsCoins="coins = $event" @emitsIsLoading="isLoading = $event"
-        @emitsNoFound="noFound = $event" @emitsError="error = $event"></SearchCoins>
 
     <section class="mx-auto max-w-7xl min-h-[50vh] px-2.5 sm:px-6 lg:px-8">
 
@@ -84,9 +72,9 @@ watchEffect(() => {
 
                             <span>
                                 <button class="focus:outline-none" type="button"
-                                    @click="addCoinStorage(cryptos.uuid, cryptos.name)">
+                                    @click="favoriteCoinStore.updateFavoriteCoinStore(cryptos.uuid, cryptos.name)">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        :class="['w-4 h-4 inline-block align-text-bottom', changeColorIcon(cryptos.uuid, cryptos.name, coinStorage), isIconActive ?? 'fill-blue-500']">
+                                        :class="['w-4 h-4 inline-block align-text-bottom', favoriteCoinStore.getIconColor(cryptos.uuid, cryptos.name), isIconActive ?? 'fill-blue-500']">
                                         <path
                                             d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                     </svg>
@@ -118,14 +106,14 @@ watchEffect(() => {
 
                     <td class="px-1 py-2">
                         <div class="flex flex-col">
-                            <span class="whitespace-nowrap">{{ convertToDollar(parseFloat(cryptos.price)) }}</span>
+                            <span class="whitespace-nowrap">{{ formatAmountToDollar(parseFloat(cryptos.price)) }}</span>
                             <span class="block sm:hidden text-gray-400 whitespace-nowrap">{{
-                                formatCurrencyWithSuffix(parseFloat(cryptos.marketCap)) }}</span>
+                                formatAmountCoins(parseFloat(cryptos.marketCap)) }}</span>
                         </div>
                     </td>
 
                     <td class="hidden sm:table-cell whitespace-nowrap px-1 py-2">
-                        {{ formatCurrencyWithSuffix(parseInt(cryptos.marketCap)) }}
+                        {{ formatAmountCoins(parseFloat(cryptos.marketCap)) }}
                     </td>
 
                     <td class="px-1 py-2">

@@ -12,8 +12,8 @@ export const getAllCoins = async (offset: number) => {
   return processCoinsRequest(url);
 };
 
-export const getSearchCoins = async (coin?: string) => {
-  const url: string = `/v2/coins?search=${coin}`;
+export const getSearchCoins = async (coin: string) => {
+  const url: string = `/v2/coins?limit=50&search=${coin}`;
   return processCoinsRequest(url);
 };
 

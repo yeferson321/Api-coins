@@ -14,7 +14,7 @@ import NoFavorites from '../noFavorites/NoFavorites.vue';
 import Error from '../error/Error.vue';
 import Canvas from '../canvas/Canvas.vue';
 
-const { addStats } = useStatsStore();
+const { updateStats } = useStatsStore();
 const { offset } = toRefs(useOffsetStore());
 const { coinStorage, removeCoinFavoriteStorage } = toRefs(useCoinStorageStore());
 const coins: Ref<CoinInterface[]> = ref([]);
@@ -30,11 +30,11 @@ const searchFavoriteCoins = async () => {
         try {
             const data: DataInterface = await getFavoritesCoins(offset.value);
             coins.value = data.coins;
-            addStats(data.stats);
-            error.value = false;
-            console.log(coins.value)
+            updateStats(data.stats);
+            error.value = false;     
         } catch (err: unknown) {
             //console.error(err)
+            coins.value = [];
             error.value = true;
         } finally {
             noFound.value = false
@@ -169,4 +169,4 @@ watch(() => offset.value, () => {
     </section>
 
    
-</template>
+</template>../../stores/coinStore../../helpers/helpers../../helpers/helpers
