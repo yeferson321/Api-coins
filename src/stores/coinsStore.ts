@@ -1,75 +1,57 @@
 import { defineStore } from 'pinia';
-import { Ref, ref } from 'vue';
-import { CoinInterface, StatsInterface } from '../interfaces/DataInterface';
+import { CoinInterface, StatsInterface, StoreInterface  } from '../interfaces/indexInterface';
 
-interface Coins {
-  coins: CoinInterface[],
-  stats: StatsInterface,
-  isLoading: boolean,
-  noFound: boolean,
-  error: boolean
-}
+const initialStats: StatsInterface = {
+  total: 0,
+  totalCoins: 0,
+  totalMarkets: 0,
+  totalExchanges: 0,
+  totalMarketCap: '',
+  total24hVolume: '',
+};
 
 export const useCoinsStore = defineStore('coinsStore', {
-
-  state: (): Coins => ({
+  state: (): StoreInterface => ({
     coins: [],
-    stats: {
-      total: 0,
-      totalCoins: 0,
-      totalMarkets: 0,
-      totalExchanges: 0,
-      totalMarketCap: '',
-      total24hVolume: ''
-    },
+    stats: initialStats,
     isLoading: true,
     noFound: false,
     error: false
   }),
-  
+
   actions: {
     responseCoins(coins: CoinInterface[], stats: StatsInterface) {
+      this.isLoading = false;
       this.coins = coins;
       this.stats = stats;
-      this.isLoading = false;
     },
 
     responseError() {
       this.isLoading = false;
+      this.coins = [];
+      this.stats = initialStats;
       this.error = true;
     },
 
     responseSearch(coins: CoinInterface[], stats: StatsInterface) {
+      this.isLoading = false;
+      
+      //stats.total = coins.length;
+      
       this.coins = coins;
       this.stats = stats;
-      this.isLoading = false;
       this.noFound = coins.length === 0
-    },
-
-    responseSearchError() {
-      this.coins = [];
-      this.isLoading = false;
-      this.error = true
-      this.stats = {
-        total: 0,
-        totalCoins: 0,
-        totalMarkets: 0,
-        totalExchanges: 0,
-        totalMarketCap: '',
-        total24hVolume: ''
-      }
+      this.error = false;
     },
 
     responseClear() {
-      this.coins = []
       this.error = false
       this.noFound = false
+    },
+
+    updateIsLoading() {
       this.isLoading = true
     },
-    
-    updateIsLoading(){
-      this.isLoading = true
-    }
 
   }
 

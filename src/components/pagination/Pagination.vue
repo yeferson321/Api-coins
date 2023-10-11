@@ -9,7 +9,7 @@ import { useCoinsStore } from '../../stores/coinsStore';
 const { offset } = toRefs(useOffsetStore());
 
 const  updateOffset = useOffsetStore();
-
+//stats.total = coins.length;
 
 const coinsStore = useCoinsStore();
 const { stats, error } = toRefs( coinsStore );
@@ -25,7 +25,6 @@ const calculatePageRange = (totalPages: number, currentPage: number) => {
   };
 
   if (currentPage <= 3) {
-    console.log(currentPage)
     return { startPage: 1, endPage: 4, nextLink: true, previousLink: false };
   };
 
@@ -37,7 +36,7 @@ const calculatePageRange = (totalPages: number, currentPage: number) => {
 };
 
 const calculatePageNumbers = () => {
-    const totalCoinsPages: number = Math.ceil((stats.value.total || 1) / items.value);
+    const totalCoinsPages: number = Math.ceil((stats.value.total ?? 1) / items.value);
     const currentPage: number = (offset.value / items.value) + 1;
 
     const { startPage, endPage, nextLink: next, previousLink: previous } = calculatePageRange(totalCoinsPages, currentPage);
@@ -65,7 +64,7 @@ watchEffect(() => {
                     <span class="hidden sm:block">Prev</span>
                 </a>
             </div>
-            <ul v-if="error || stats.total !== undefined " class="inline-flex items-center gap-1 sm:gap-1.5 text-sm">              
+            <ul v-if="stats.total !== undefined" class="inline-flex items-center gap-1 sm:gap-1.5 text-sm">              
                 <li v-if="previousLink">
                     <a href="#" class="flex items-center px-3 sm:px-3.5 h-9 text-white rounded-lg hover:bg-blue-600/30"
                         @click="updateOffset.updateOffset(0)">
@@ -94,7 +93,7 @@ watchEffect(() => {
                 </svg>
                 <span class="sr-only">Loading...</span>
             </div>
-            <div class="ml-3 sm:ml-5">c
+            <div class="ml-3 sm:ml-5">
                 <a href="#" :class="[offset < stats.total - items ? 'bg-blue-600 hover:bg-blue-700' : 'border-blue-600 border cursor-default', 'inline-flex items-center px-3 sm:px-4 h-9 text-white rounded-full']"
                     @click="offset < stats.total - items && updateOffset.updateOffset(offset + items)">
                     <span class="hidden sm:block">Next</span>

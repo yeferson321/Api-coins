@@ -4,8 +4,8 @@ export interface ApiResponse {
 };
 
 export interface DataInterface {
-    stats: StatsInterface;
-    coins: CoinInterface[];
+    stats:  StatsInterface;
+    coins:  CoinInterface[];
 };
 
 export interface CoinInterface {

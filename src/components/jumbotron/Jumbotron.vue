@@ -44,7 +44,7 @@ const { stats, error } = toRefs(useCoinsStore());
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base leading-9 text-white">{{ formatAmountToLocaleString(stats.total, error) }}</span>
+                    <span class="text-sm sm:text-base leading-9 text-white">{{ formatAmountToLocaleString(stats.totalCoins, error) }}</span>
                     <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">All Coins</span>
                 </li>
             </ul>
@@ -81,4 +81,4 @@ const { stats, error } = toRefs(useCoinsStore());
 .v-popper--theme-tooltip .v-popper__arrow-outer {
     border-color: #0a0000!important;;
 }
-</style>../../helpers/helpers../../utils/helpers../../helpers/amountFormatting
+</style>

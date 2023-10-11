@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ref, ref, toRefs } from "vue";
+import { Ref, ref, toRefs, watch, watchEffect } from "vue";
 import { DataInterface } from "../../interfaces/DataInterface";
 import { getSearchCoins } from "../../services/CoinService";
 
@@ -9,7 +9,7 @@ import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const coinsStore = useCoinsStore();
 
-const OffsetStore = useOffsetStore();
+const offsetStore = useOffsetStore();
 
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 
@@ -17,19 +17,22 @@ const inputRef: Ref<HTMLInputElement | null> = ref(null);
 const showClear: Ref<boolean> = ref(false);
 let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-const searchCoins = async (valueInput: string) => {
+const searchCoins = async (offset: number, valueInput: string) => {
+
     coinsStore.updateIsLoading()
+
+    console.log(offset)
+  
     try {
-        const { coins, stats }: DataInterface = await getSearchCoins(valueInput);
-        stats.total = coins.length;
+        const { coins, stats }: DataInterface = await getSearchCoins(offset, valueInput);
 
         coinsStore.responseSearch(coins, stats)
 
     } catch (err) {
         //console.error(err)
 
-        coinsStore.responseSearchError()
-    }
+        coinsStore.responseError()
+    };
 };
 
 const clearInput = () => {
@@ -39,7 +42,7 @@ const clearInput = () => {
 
         coinsStore.responseClear()
 
-        OffsetStore.updateOffset(0);
+        offsetStore.updateOffset(0);
     };
 };
 
@@ -51,17 +54,21 @@ const inputSearch = () => {
 
     if (inputValue.trim() === "") {
 
-        coinsStore.updateIsLoading()
-
-        OffsetStore.updateOffset(0);
+        offsetStore.updateOffset(0);
 
         return;
     };
 
     timeoutId = setTimeout(() => {
-        searchCoins(inputValue);
+        
+        searchCoins(0, inputValue);
+
     }, 500);
 };
+
+watch(() => offsetStore.offset, () => {
+    searchCoins(offsetStore.offset, inputRef.value?.value || '');
+});
 </script>
 
 <template>

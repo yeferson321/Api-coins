@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { Ref, ref, toRefs, watchEffect } from 'vue';
+import { onMounted, toRefs } from 'vue';
 import { getAllCoins } from '../../services/CoinService';
 
 import { DataInterface } from '../../interfaces/DataInterface';
 import { useCoinsStore } from '../../stores/coinsStore';
-import { useOffsetStore } from '../../stores/offsetStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 import IsLoading from '../isLoading/IsLoading.vue';
@@ -14,22 +13,25 @@ import Canvas from '../canvas/Canvas.vue';
 import { formatAmountToDollar, formatAmountCoins } from '../../helpers/amountFormatting';
 
 const coinsStore = useCoinsStore();
-const { coins, isLoading, noFound, error } = toRefs( coinsStore );
-const { offset } = toRefs(useOffsetStore());
+
+const { coins, stats, isLoading, noFound, error } = toRefs( coinsStore );
+
 const favoriteCoinStore = useFavoriteCoinStore();
-const isIconActive: Ref<boolean> = ref(false);
 
 const searchCoinsCurrencies = async () => {
+    
+    coinsStore.updateIsLoading()
     try {
-        const { coins, stats }: DataInterface = await getAllCoins(offset.value);
+        const { coins, stats }: DataInterface = await getAllCoins(0);
         coinsStore.responseCoins(coins, stats);
     } catch (err: unknown) {
         //console.error(err);
         coinsStore.responseError();
     };
+
 };
 
-watchEffect(() => {
+onMounted(() => {
     searchCoinsCurrencies();
 });
 </script>
@@ -43,7 +45,7 @@ watchEffect(() => {
             <thead class="text-sm uppercase text-gray-400">
                 <tr>
                     <th scope="col" class="px-1 py-3">
-                        All Coins
+                        All Coins {{  stats.total !== 0 ? stats.total : '' }}
                     </th>
                     <th scope="col" class="hidden md:table-cell px-1 py-3">
                         Symbol
@@ -74,7 +76,7 @@ watchEffect(() => {
                                 <button class="focus:outline-none" type="button"
                                     @click="favoriteCoinStore.updateFavoriteCoinStore(cryptos.uuid, cryptos.name)">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        :class="['w-4 h-4 inline-block align-text-bottom', favoriteCoinStore.getIconColor(cryptos.uuid, cryptos.name), isIconActive ?? 'fill-blue-500']">
+                                        :class="['w-4 h-4 inline-block align-text-bottom', favoriteCoinStore.getIconColor(cryptos.uuid, cryptos.name), 'fill-blue-500']">
                                         <path
                                             d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                     </svg>

@@ -6,7 +6,7 @@ export const formatAmountToDollar = (amount: number) => {
 };
 
 export const formatAmountCoins = (amount: number) => {
-    if (isNaN(amount)) { return "" };
+    if (isNaN(amount)) { return "$ --" };
 
     const suffixes: string[] = ["", "K", "Million", "Billion", "Trillion"];
     const precision: number = 2;
@@ -42,9 +42,9 @@ export const formatAmountStats = (amount: number, error: boolean = false) => {
 };
 
 export const formatAmountToLocaleString = (amount: number, error: boolean) => {
-    if (error || amount === 0) { return "--" };
-
-    if (amount === undefined) { return "Loading..." };
+    if (error) { return "--"}
+    
+    if (amount === 0) { return "Loading..." };
 
     const options = { style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 0 };
     return amount.toLocaleString('en-US', options);
