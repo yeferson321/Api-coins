@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from '@vue/reactivity';
-import { Ref, toRefs, onMounted, watch } from 'vue';
+import { Ref, toRefs, onMounted, watch, watchEffect } from 'vue';
 import { changeColorIcon, convertToDollar, formatCurrencyWithSuffix } from '../../utils/helpers';
 import { getFavoritesCoins } from '../../services/CoinService';
 import { DataInterface, CoinInterface } from '../../interfaces/DataInterface';
@@ -58,6 +58,7 @@ onMounted(() => {
 watch(() => offset.value, () => {
     searchFavoriteCoins();
 });
+
 </script>
 
 <template>

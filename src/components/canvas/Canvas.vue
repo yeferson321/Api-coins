@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from '@vue/reactivity';
-import { Ref, onMounted, watch } from 'vue';
+import { ref, Ref, watchEffect } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { ChartInterface } from '../../interfaces/ChartInterface';
 
 const charts: Ref<Chart[]> = ref([]);
+const canvasRef: Ref<null | HTMLCanvasElement> = ref(null);
 
 const props = defineProps({
     sparkline: {
@@ -35,14 +35,15 @@ const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
 }
 
 const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
-    const sparklineData: number[] = (sparkline ?? []).map(val => parseFloat(val) || 0);
-    const minValue: number = Math.min(...sparklineData);
+    const filteredData: string[] = sparkline.filter(value => value !== null) ?? [];
+    const sparklineData: number[] = (filteredData).map(val => parseFloat(val));
+    
     return {
         labels: sparklineData.map((_, i) => i + 1),
         datasets: [
             {
-                label: "Price",
-                data: sparklineData.map((val) => val != null ? Number(val) : minValue),
+                label: "Spark",
+                data: sparklineData,
                 borderWidth: 1,
                 pointRadius: 0,
                 pointHoverBorderWidth: 1,
@@ -84,11 +85,10 @@ const createChartConfig = (data: ChartInterface): ChartConfiguration => {
             },
         },
     };
-}
-
+};
 
 const renderChart = (sparkline: string[], change: string, index: number) => {
-    const canvas: HTMLCanvasElement = document.getElementById(`Chart-${index}`) as HTMLCanvasElement;
+    const canvas: HTMLCanvasElement | null = canvasRef.value;
     if (!canvas) return;
 
     // Obtén el contexto del lienzo
@@ -96,11 +96,9 @@ const renderChart = (sparkline: string[], change: string, index: number) => {
     if (!ctx) return;
 
     // Ajusta la resolución para pantallas Retina
-    const ratio = window.devicePixelRatio || 1;
+    const ratio: number = window.devicePixelRatio || 1;
     canvas.width = canvas.clientWidth * ratio;
     canvas.height = canvas.clientHeight * ratio;
-
-    // Escala el contexto para compensar la resolución
     ctx.scale(ratio, ratio);
 
     const gradient: CanvasGradient = createGradient(ctx, change);
@@ -111,24 +109,20 @@ const renderChart = (sparkline: string[], change: string, index: number) => {
 
     if (charts.value[index]) {
         charts.value[index].destroy();
-    }
+    };
 
     const chart = new Chart(canvas, chartConfig);
     charts.value[index] = chart;
-}
+};
 
-onMounted(() => {
-    renderChart(props.sparkline, props.change, props.index);
-});
-
-watch(() => props.sparkline, () => {
+watchEffect(() => {
     renderChart(props.sparkline, props.change, props.index);
 });
 </script>
 
 <template>
     <span>
-        <canvas :id="`Chart-${props.index}`" class="w-[50px] sm:w-[100px] my-1" style="height: 20px;">
+        <canvas ref="canvasRef" class="w-[50px] sm:w-[100px] my-1" style="height: 20px;">
             Your browser does not support the canvas element.
         </canvas>
     </span>

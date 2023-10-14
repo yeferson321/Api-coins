@@ -35,3 +35,12 @@ export interface StatsInterface {
     totalMarketCap: string;
     total24hVolume: string;
 };
+
+export const initialStatsInterface: StatsInterface = {
+    total: 0,
+    totalCoins: 0,
+    totalMarkets: 0,
+    totalExchanges: 0,
+    totalMarketCap: '',
+    total24hVolume: '',
+};

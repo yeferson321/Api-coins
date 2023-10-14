@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useOffsetStore } from '../../stores/offsetStore';
+import { useSearchCoinStore } from '../../stores/searchCoinStore';
 
-const { updateOffset } = useOffsetStore();
+const { updateOffset } = useSearchCoinStore();
 </script>
 
 <template>

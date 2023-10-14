@@ -13,7 +13,7 @@ export const getAllCoins = async (offset: number) => {
 };
 
 export const getSearchCoins = async (offset: number, coin: string) => {
-  console.log(offset)
+  //console.log(offset)
   const url: string = `/v2/coins?offset=${offset}&search=${coin}`;
   return processCoinsRequest(url);
 };

@@ -5,7 +5,7 @@ export const formatAmountToDollar = (amount: number) => {
     return amount.toLocaleString('en-US', options).replace('$', '$ ');
 };
 
-export const formatAmountCoins = (amount: number) => {
+export const formatAmountWithSuffixe = (amount: number) => {
     if (isNaN(amount)) { return "$ --" };
 
     const suffixes: string[] = ["", "K", "Million", "Billion", "Trillion"];
@@ -22,7 +22,7 @@ export const formatAmountCoins = (amount: number) => {
     return `${symbol} ${amount.toFixed(precision)} ${suffixes[index]}`;
 };
 
-export const formatAmountStats = (amount: number, error: boolean = false) => {
+export const formatAmountSuffixe = (amount: number, error: boolean = false) => {
     if (error) { return "--" } 
 
     if (isNaN(amount)) { return "Loading..." };
@@ -41,7 +41,7 @@ export const formatAmountStats = (amount: number, error: boolean = false) => {
     return `${symbol} ${amount.toFixed(precision)} ${suffixes[index]}`;
 };
 
-export const formatAmountToLocaleString = (amount: number, error: boolean) => {
+export const formatAmountToDecimal = (amount: number, error: boolean) => {
     if (error) { return "--"}
     
     if (amount === 0) { return "Loading..." };
