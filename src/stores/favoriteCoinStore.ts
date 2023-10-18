@@ -4,6 +4,10 @@ import { Ref, ref } from 'vue';
 export const useFavoriteCoinStore = defineStore('favoriteCoinstore', () => {
   const favoriteCoin: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
 
+  function resetFavoriteCoin( ) {
+    const favoriteCoin: Ref<string[]> = ref(JSON.parse(localStorage.getItem('favorites') || '[]'));
+  }
+
   function updateFavoriteCoinStore(uuid: string, name: string) {
     const coinIdentifier: string = `&uuids[]=${uuid}&name=${name.toLowerCase()}`;
 

@@ -1,63 +1,38 @@
 <script setup lang="ts">
-import { ref } from "@vue/reactivity";
-import { Ref, toRefs } from "vue";
-import { DataInterface, CoinInterface } from "../../interfaces/DataInterface";
-import { getSearchFavoritesCoins } from "../../services/CoinService";
-import { useOffsetStore } from '../../stores/offsetStore';
-import { useCoinStorageStore } from '../../stores/coinStorage';
+import { ref, Ref, toRefs, watch } from "vue";
+import { useSearchCoinStore } from '../../stores/searchCoinStore';
+import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
-const { offset, updateOffset } = toRefs(useOffsetStore());
-const { coinStorage } = useCoinStorageStore();
-const inputRef: Ref<HTMLInputElement | null> = ref(null);
-const showClear: Ref<boolean> = ref(false);
-let timeoutId: undefined | ReturnType<typeof setTimeout>;
+const searchCoinStore = useSearchCoinStore();
+const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+const valueInput: Ref<string> = ref("");
 
-const emits = defineEmits<{
-    (event: "emitsCoins", value: CoinInterface[]): void;
-    (event: "emitsIsLoading", value: boolean): void;
-    (event: "emitsNoFound", value: boolean): void;
-    (event: "emitsError", value: boolean): void;
-}>();
+const searchByEnter = () => {
+    const matchingElements = favoriteCoin.value.filter(item => item.includes(valueInput.value.trim().toLowerCase()));
 
-const searchCoins = async () => {
-    const matchingElements = coinStorage.filter(item => item.includes(inputRef.value?.value?.toLowerCase() ?? ""));
-    
-    if (matchingElements.length) {
-        emits("emitsIsLoading", true);
-        try {
-            const { coins }: DataInterface = await getSearchFavoritesCoins(offset.value, matchingElements);
-            emitsResults(coins, false);
-        } catch (error) {
-            //console.error(err)
-            emitsResults([], true);
-            emits("emitsError", true);
-        } finally {
-            emits("emitsIsLoading", false);
-        }
+    if (matchingElements.length) { 
+
+        console.log('yes')
+        searchCoinStore.updateSearchFavoritesCoin(matchingElements);
+
     } else {
-        emitsResults([], true);
+
+        console.log('matchingElements', matchingElements)
+
+        searchCoinStore.updateNoFound()
     };
 };
 
-const emitsResults = (coins: CoinInterface[], noFound: boolean) => {
-  emits("emitsCoins", coins);
-  emits("emitsNoFound", noFound);
+const resetInput = () => {
+    valueInput.value = "";
+    searchCoinStore.updateSearchFavoritesCoin([]);
 };
 
-const inputSearch = () => {
-    showClear.value = inputRef.value?.value !== "";
-    timeoutId && clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => { searchCoins(); }, 500);
-};
+watch(valueInput, () => {
+    if (valueInput.value !== '') return;
 
-const clearSearch = () => {
-    if (inputRef.value?.value) {
-        inputRef.value.value = '';
-        showClear.value = false;
-        emits("emitsNoFound", false);
-        updateOffset.value(0);
-    };
-};
+    searchCoinStore.updateSearchFavoritesCoin(favoriteCoin.value);
+});
 </script>
 
 <template>
@@ -71,9 +46,9 @@ const clearSearch = () => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </div>
-                    <input type="text" id="search" ref="inputRef" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
-                        @input="inputSearch" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off" enterKeyHint="search" spellCheck="false" placeholder="Buscar en Coinsver..." required>
-                    <button v-if="showClear" type="button" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" @click="clearSearch()">
+                    <input type="text" id="search" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
+                        v-model="valueInput" @keyup.enter="searchByEnter()" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off" enterKeyHint="search" spellCheck="false" placeholder="Search favorite coins..." required>
+                    <button v-if="valueInput" type="button" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" @click="resetInput()">
                         <svg class="w-5 h-5 stroke-neutral-400 hover:stroke-neutral-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -88,4 +63,4 @@ const clearSearch = () => {
             </a>
         </div>
     </div>
-</template>../../stores/coinStore
+</template>

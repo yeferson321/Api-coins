@@ -4,35 +4,37 @@ import { getSearchCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/indexInterface';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import SearchCoins from '../searchCoins/SearchCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
+import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
-import Canvas from '../canvas/Canvas.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, stats, offset, valueInput, isLoading, noFound, error } = toRefs(searchCoinStore);
+const { coins, stats, offset, searchInput, isLoading, noFound, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 
 const fetchSearchResults = async (offset: number, valueInput: string) => {
+    searchCoinStore.updateIsLoading();
     try {
         const { coins, stats }: DataInterface = await getSearchCoins(offset, valueInput);
-        searchCoinStore.responseSearch(coins, stats);
-        console.log(coins)
+        searchCoinStore.responseSearchCoins(coins, stats);
     } catch (err: unknown) {
         //console.error(err);
-        searchCoinStore.responseSearchError();
-    }
+        searchCoinStore.responseSearchCoinsError();
+    };
 };
 
 watchEffect(() => {
-    fetchSearchResults(offset.value, valueInput.value);
-})
+    fetchSearchResults(offset.value, searchInput.value);
+});
 </script>
 
 <template>
-    <section class="mx-auto max-w-7xl px-2.5 sm:px-6 lg:px-8">
-        <table class="w-full min-w-[270px] table-fixed text-xs sm:text-sm text-left text-white">
+    <SearchCoins></SearchCoins>
+    <section class="mx-auto max-w-7xl px-1 fold:px-2.5 sm:px-6 lg:px-8">
+        <table class="w-full min-w-[260px] table-fixed text-xs sm:text-sm text-left text-white">
             <thead class="text-xs sm:text-sm uppercase text-gray-400">
                 <tr>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">
@@ -79,9 +81,9 @@ watchEffect(() => {
                     </td>
                     <td class="px-1 sm:px-2 py-2">
                         <div class="flex flex-col items-end">
-                            <span :class="[cryptos.change ? cryptos.change.includes('-') ? 'text-red-600' : 'text-green-400' : 'text-blue-500/50']">
+                            <div :class="[cryptos .change ? cryptos.change.includes('-') ? 'text-red-600' : 'text-green-400' : 'text-blue-500/50']">
                                 {{ cryptos.change ? cryptos.change.includes('-') ? cryptos.change : '+' + cryptos.change : "--%" }}
-                            </span>
+                            </div>
                             <Canvas :sparkline="cryptos.sparkline" :change="cryptos.change" :index="index"></Canvas>
                         </div>
                     </td>
