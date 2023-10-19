@@ -11,11 +11,6 @@ const searchByEnter = () => {
     searchCoinStore.updateSearchParameters(valueInput.value.trim());
 };
 
-const resetInput = () => {
-    valueInput.value = "";
-    searchCoinStore.updateSearchParameters("");
-};
-
 watch(valueInput, () => {
     if (valueInput.value !== '') return;
     searchCoinStore.updateSearchParameters("");
@@ -33,10 +28,9 @@ watch(valueInput, () => {
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </div>
-                    <input type="text" id="search" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
-                        v-model="valueInput" @keyup.enter="searchByEnter()" aria-label="Search Coins" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off"
-                        enterKeyHint="search" spellCheck="false" placeholder="Search Coins..." required>
-                    <button v-if="valueInput" type="button" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" @click="resetInput()">
+                    <input v-model="valueInput" @keyup.enter="searchByEnter()" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
+                        type="text" id="search" aria-label="Search Coins" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off" enterKeyHint="search" spellCheck="false" placeholder="Search Coins..." required>
+                    <button v-if="valueInput" @click="valueInput = ''" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" type="button">
                         <svg class="w-5 h-5 stroke-neutral-400 hover:stroke-neutral-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>

@@ -15,9 +15,7 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
   }),
 
   actions: {
-
-    /// All Components
-
+    // All Components
     updateIsLoading() {
       this.isLoading = true;
     },
@@ -31,8 +29,7 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.offset = newOffset;
     },
 
-    /// Coins Component
-
+    // Coins Component
     responseSearchCoins(coins: CoinInterface[], stats: StatsInterface) {
       this.isLoading = false;
       this.coins = coins;
@@ -45,8 +42,7 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.offset = 0;
     },
 
-    //// Favorite Component
-
+    // Favorite Component
     responseSearchFavoriteCoins(coins: CoinInterface[], stats: StatsInterface) {
       this.isLoading = false;
       this.coins = coins;
@@ -57,17 +53,11 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.noFavorites = true;
     },
 
-    updateNoFound() {
-      this.noFound = true;
-      this.noFavorites = false;
-      this.coins = []
-    },
-
-
-
     updateCoins(uuid: string) {
       this.coins = this.coins.filter(crypto => crypto.uuid !== uuid);
-      this.noFavorites = this.coins.length === 0
+      //this.stats.total = this.coins.length;
+      
+      this.noFavorites = this.coins.length === 0;
     },
 
     updateSearchFavoritesCoin(newFavoritesCoin: string[]) {
@@ -76,8 +66,19 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.noFavorites = this.coins.length === 0;
     },
 
+    updateNoFound() {
+      this.coins = [];
+      this.noFound = true;
+      this.noFavorites = false;
+    },
 
+    // LoadMore Component
 
+    updateMergedCoins(newCoins: CoinInterface[]){
+      const mergedCoins = [...this.coins, ...newCoins];
+      this.coins = mergedCoins;
+    }
+  
   }
 });
 

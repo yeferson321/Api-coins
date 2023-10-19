@@ -12,7 +12,7 @@ export const getSearchCoins = async (offset: number, coin: string) => {
   return processCoinsRequest(url);
 };
 
-export const getSearchFavoritesCoins = async (offset: number, searchCoinStorage: string[]) => {
+export const getSearchFavoritesCoins = async (searchCoinStorage: string[], offset: number = 0) => {
   const cleanArray: string[] = searchCoinStorage.map((item) => item.replace(/&name=.*/, ''));
   const joinedCoins: string = cleanArray.join('');
 

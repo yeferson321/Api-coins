@@ -9,6 +9,7 @@ import IsLoading from '../isLoading/IsLoading.vue';
 import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
+import Pagination from '../pagination/Pagination.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
@@ -93,4 +94,5 @@ watchEffect(() => {
         <NoFound v-show="noFound"></NoFound>
         <Error v-show="error"></Error>
     </section>
+    <Pagination></Pagination>
 </template>

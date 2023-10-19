@@ -9,6 +9,7 @@ import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 import SearchFavoriteCoins from '../searchFavoriteCoins/SearchFavoriteCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
+import LoadMore from '../loadMore/LoadMore.vue';
 import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import NoFavorites from '../noFavorites/NoFavorites.vue';
@@ -16,17 +17,15 @@ import Error from '../error/Error.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, stats, offset, searchFavoritesCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
+const { coins, stats, searchFavoritesCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
-const fetchSearchResults = async (offset: number, searchFavoriteCoin: string[]) => {
-
-    if (favoriteCoin.value.length)  {
+const fetchSearchResults = async (searchFavoriteCoin: string[]) => {
+    if (searchFavoriteCoin.length)  {
         searchCoinStore.updateIsLoading();
         try {
-            const { coins, stats }: DataInterface = await getSearchFavoritesCoins(offset, searchFavoriteCoin);
-            console.log("paso por aqui");
+            const { coins, stats }: DataInterface = await getSearchFavoritesCoins(searchFavoriteCoin);
             searchCoinStore.responseSearchFavoriteCoins(coins, stats);   
         } catch (err: unknown) {
             //console.error(err)
@@ -40,19 +39,19 @@ const fetchSearchResults = async (offset: number, searchFavoriteCoin: string[]) 
 
 const removeCoinFavorite = (uuid: string, name: string) => {
     favoriteCoinStore.removeFavoriteCoinStore(uuid, name);
+
+    stats.value.total = favoriteCoin.value.length;
+
     searchCoinStore.updateCoins(uuid);
 };
 
 onMounted(() => {
-    fetchSearchResults(offset.value, favoriteCoin.value);
+    fetchSearchResults(favoriteCoin.value);
 });
 
 watch(() => searchFavoritesCoin.value, () => {
-    console.log("busqueda", searchFavoritesCoin.value)
-
-    fetchSearchResults(offset.value, searchFavoritesCoin.value);
+    fetchSearchResults(searchFavoritesCoin.value);
 });
-
 </script>
 
 <template>
@@ -114,6 +113,7 @@ watch(() => searchFavoritesCoin.value, () => {
                 </tr>
             </tbody>
         </table>
+        <LoadMore></LoadMore>
         <NoFound v-show="noFound"></NoFound>
         <NoFavorites v-show="noFavorites"></NoFavorites>
         <Error v-show="error"></Error>
