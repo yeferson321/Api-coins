@@ -4,6 +4,11 @@ import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { formatAmountSuffixe, formatAmountToDecimal } from '../../helpers/amountFormatting';
 
 const { stats, error } = toRefs(useSearchCoinStore());
+
+const identifyRoute = () => {
+    const currentPath = window.location.pathname;
+    return currentPath === "/" ? "All Coins" : "Favorite coins";
+}
 </script>
 
 <template>
@@ -42,8 +47,8 @@ const { stats, error } = toRefs(useSearchCoinStore());
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base leading-9 text-white">{{ formatAmountToDecimal(stats.totalCoins, error) }}</span>
-                    <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">All Coins</span>
+                    <span class="text-sm sm:text-base leading-9 text-white">{{ formatAmountToDecimal(stats.total, error) }}</span>
+                    <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">{{ identifyRoute() }}</span>
                 </li>
             </ul>
         </div>

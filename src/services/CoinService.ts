@@ -1,9 +1,9 @@
 import axios from './Axios';
-import { ApiResponse } from '../interfaces/DataInterface';
+import { ResponseInterface } from '../interfaces/indexInterface';
 import { AxiosResponse } from 'axios';
 
 const processCoinsRequest = async (url: string) => {
-  const response: AxiosResponse<ApiResponse> = await axios.get(url);
+  const response: AxiosResponse<ResponseInterface> = await axios.get(url);
   return response.data.data;
 };
 

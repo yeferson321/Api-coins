@@ -7,11 +7,10 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
     stats: initialStatsInterface,
     isLoading: false,
     searchInput: '',
-    searchFavoritesCoin: [],
+    searchInputFavorites: [],
     noFound: false,
     noFavorites: false,
     error: false,
-    offset: 0,
   }),
 
   actions: {
@@ -25,10 +24,6 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.error = true;
     },
 
-    updateOffset(newOffset: number) {
-      this.offset = newOffset;
-    },
-
     // Coins Component
     responseSearchCoins(coins: CoinInterface[], stats: StatsInterface) {
       this.isLoading = false;
@@ -39,7 +34,6 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
 
     updateSearchParameters(newValueInput: string) {
       this.searchInput = newValueInput;
-      this.offset = 0;
     },
 
     // Favorite Component
@@ -49,28 +43,31 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.stats = stats;
     },
 
-    updateNoFavorites() {
+    responseSearchNoFavoriteCoins(newStats: StatsInterface) {
+      this.isLoading = false;
       this.noFavorites = true;
+      //this.noFound = false;
+      this.stats = newStats;
     },
 
     updateCoins(uuid: string) {
       this.coins = this.coins.filter(crypto => crypto.uuid !== uuid);
-      //this.stats.total = this.coins.length;
-      
-      this.noFavorites = this.coins.length === 0;
     },
 
-    updateSearchFavoritesCoin(newFavoritesCoin: string[]) {
-      this.searchFavoritesCoin = newFavoritesCoin;
+    updateSearchFavoritesParameters(newValueInput: string[]) {
+      this.searchInputFavorites = newValueInput;
+    },
+
+    updateNoFavorites() {
+      this.noFavorites = true;
       this.noFound = false;
-      this.noFavorites = this.coins.length === 0;
     },
 
     updateNoFound() {
-      this.coins = [];
       this.noFound = true;
       this.noFavorites = false;
     },
+
 
     // LoadMore Component
 

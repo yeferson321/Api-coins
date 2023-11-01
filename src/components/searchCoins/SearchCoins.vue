@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { ref, Ref, toRefs, watch } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
+import { usePaginationStore } from '../../stores/paginationStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const searchCoinStore = useSearchCoinStore();
+const paginationStore = usePaginationStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const valueInput: Ref<string> = ref("");
 
 const searchByEnter = () => {
     searchCoinStore.updateSearchParameters(valueInput.value.trim());
+    paginationStore.updateOffset(0);
 };
 
 watch(valueInput, () => {
     if (valueInput.value !== '') return;
     searchCoinStore.updateSearchParameters("");
+    paginationStore.updateOffset(0);
 });
 </script>
 
@@ -30,7 +34,7 @@ watch(valueInput, () => {
                     </div>
                     <input v-model="valueInput" @keyup.enter="searchByEnter()" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
                         type="text" id="search" aria-label="Search Coins" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off" enterKeyHint="search" spellCheck="false" placeholder="Search Coins..." required>
-                    <button v-if="valueInput" @click="valueInput = ''" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" type="button">
+                    <button v-if="valueInput" @click="valueInput = ''" type="button" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3">
                         <svg class="w-5 h-5 stroke-neutral-400 hover:stroke-neutral-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>

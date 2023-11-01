@@ -7,27 +7,26 @@ const searchCoinStore = useSearchCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const valueInput: Ref<string> = ref("");
     
-
 const searchByEnter = () => {
     const matchingElements = favoriteCoin.value.filter(item => item.includes(valueInput.value.trim().toLowerCase()));
 
     if (matchingElements.length) { 
-
-        console.log('yes')
-        searchCoinStore.updateSearchFavoritesCoin(matchingElements);
-
+        searchCoinStore.updateSearchFavoritesParameters(matchingElements);
     } else {
-
-        console.log('matchingElements', matchingElements)
-
-        searchCoinStore.updateNoFound()
-        
+        searchCoinStore.updateNoFound();
     };
 };
 
 watch(valueInput, () => {
+    
     if (valueInput.value !== '') return;
-    searchCoinStore.updateSearchFavoritesCoin(favoriteCoin.value);
+
+    if (favoriteCoin.value.length) {
+        searchCoinStore.updateSearchFavoritesParameters(favoriteCoin.value);
+    } else {
+        searchCoinStore.updateNoFavorites();
+    };
+
 });
 </script>
 
@@ -44,7 +43,7 @@ watch(valueInput, () => {
                     </div>
                     <input v-model="valueInput" @keyup.enter="searchByEnter()" class="block w-full py-1.5 pl-12 pr-6 min-[435px]:pr-11 bg-transparent rounded-full border border-gray-400 text-white focus:outline-none"
                         type="text" id="search" aria-label="Search Coins" aria-autocomplete="both" aria-labelledby=":r1:-label" autoComplete="off" autoCorrect="off" autoCapitalize="off" enterKeyHint="search" spellCheck="false" placeholder="Search favorite coins..." required>
-                    <button v-if="valueInput" @click="valueInput = ''" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3" type="button">
+                    <button v-if="valueInput" @click="valueInput = ''" type="button" class="max-[435px]:hidden absolute inset-y-0 right-0 flex items-center pr-3">
                         <svg class="w-5 h-5 stroke-neutral-400 hover:stroke-neutral-300" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>

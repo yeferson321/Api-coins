@@ -1,11 +1,15 @@
-export interface ApiResponse {
-    status: string;
-    data:   DataInterface;
+export interface DataInterface {
+    stats: StatsInterface;
+    coins: CoinInterface[];
 };
 
-export interface DataInterface {
-    stats:  StatsInterface;
-    coins:  CoinInterface[];
+export interface StatsInterface {
+    total:          number;
+    totalCoins:     number;
+    totalMarkets:   number;
+    totalExchanges: number;
+    totalMarketCap: string;
+    total24hVolume: string;
 };
 
 export interface CoinInterface {
@@ -25,15 +29,6 @@ export interface CoinInterface {
     coinrankingUrl: string;
     "24hVolume":    string;
     btcPrice:       string;
-};
-
-export interface StatsInterface {
-    total:          number;
-    totalCoins:     number;
-    totalMarkets:   number;
-    totalExchanges: number;
-    totalMarketCap: string;
-    total24hVolume: string;
 };
 
 export const initialStatsInterface: StatsInterface = {
