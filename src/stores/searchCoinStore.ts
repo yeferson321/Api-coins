@@ -50,10 +50,15 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.stats = newStats;
     },
 
-    updateCoins(uuid: string) {
-      this.coins = this.coins.filter(crypto => crypto.uuid !== uuid);
-    },
 
+    updateCoins(uuid: string) {
+      const index = this.coins.findIndex(crypto => crypto.uuid === uuid);
+
+      if (index !== -1) {
+        this.coins.splice(index, 1);
+      }
+    },
+    
     updateSearchFavoritesParameters(newValueInput: string[]) {
       this.searchInputFavorites = newValueInput;
     },
@@ -70,12 +75,10 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
 
 
     // LoadMore Component
-
     updateMergedCoins(newCoins: CoinInterface[]){
       const mergedCoins = [...this.coins, ...newCoins];
       this.coins = mergedCoins;
     }
-  
   }
 });
 

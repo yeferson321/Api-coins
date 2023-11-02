@@ -17,7 +17,7 @@ import Error from '../error/Error.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, stats, searchInputFavorites, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
+const { coins, searchInputFavorites, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
@@ -40,11 +40,17 @@ const fetchSearchResults = async (searchFavoriteCoin: string[]) => {
 
 const removeCoinFavorite = (uuid: string, name: string) => {
     searchCoinStore.updateCoins(uuid);
-    favoriteCoinStore.removeFavoriteCoinStore(uuid, name);
+    favoriteCoinStore.toggleFavoriteCoin(uuid, name);
     
-    // if (coins.value.length === 0) {
+    // if (!coins.value.length) {
+    //     console.log("holas")
     //     fetchSearchResults(favoriteCoin.value);
     // }
+    if (favoriteCoin.value.length === 0) {
+        console.log("holas")
+        searchCoinStore.updateNoFavorites()
+        //fetchSearchResults(favoriteCoin.value);
+    }
 };
 
 onMounted(() => {
@@ -115,7 +121,7 @@ watch(() => searchInputFavorites.value, () => {
                 </tr>
             </tbody>
         </table>
-        <LoadMore v-if="!error && favoriteCoin.length && coins.length"></LoadMore>
+        <LoadMore v-if="!error && favoriteCoin.length"></LoadMore>
         <NoFound v-if="noFound"></NoFound>
         <NoFavorites v-if="noFavorites"></NoFavorites>
         <Error v-if="error"></Error>

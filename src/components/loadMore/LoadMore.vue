@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { ref, Ref, toRefs, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, Ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/DataInterface';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 import { usePaginationStore } from '../../stores/paginationStore';
+import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const router = useRouter();
 const searchCoinStore = useSearchCoinStore();
 const paginationStore = usePaginationStore();
-
 const { coins } = toRefs(searchCoinStore);
-const { favoriteCoin } = toRefs(useFavoriteCoinStore());
-
 const { offset, items } = toRefs(paginationStore);
-const isLoading: Ref<boolean> = ref(false), error: Ref<boolean> = ref(false);
+const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+const isLoading: Ref<boolean> = ref(false);
+const error: Ref<boolean> = ref(false);
 
 const scrollToTopAndPushRoute = () => {
     paginationStore.updateOffset(0);
@@ -23,12 +22,12 @@ const scrollToTopAndPushRoute = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const reloadPage = () => router.go(0);
+const fetchMoreCoins = async (favoriteCoin: string[], offset: number) => {
+    if (isLoading.value) return;
 
-const fetchMoreCoins = async (searchFavoriteCoin: string[], offset: number) => {
     isLoading.value = true;
     try {
-        const { coins }: DataInterface = await getSearchFavoritesCoins(searchFavoriteCoin, offset);
+        const { coins }: DataInterface = await getSearchFavoritesCoins(favoriteCoin, offset);
         searchCoinStore.updateMergedCoins(coins)
     } catch (err: unknown) {
         error.value = true;
@@ -37,24 +36,36 @@ const fetchMoreCoins = async (searchFavoriteCoin: string[], offset: number) => {
     }
 };
 
-watch(() => offset.value, () => {
-    fetchMoreCoins(favoriteCoin.value, offset.value)
+const scrollFetch = () => {
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (coins.value.length === favoriteCoin.value.length) return;
+
+    if (scrollY + windowHeight >= documentHeight - 300) {
+        fetchMoreCoins(favoriteCoin.value, offset.value + items.value);
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('scroll', scrollFetch);
 });
 
-
+onBeforeUnmount(() => {
+    window.removeEventListener('scroll', scrollFetch);
+});
 </script>
 
 <template>
-    <div class="py-10">
+    <div class="my-10">
         <div class="text-center">
-            <button v-if="coins.length === favoriteCoin.length" @click="scrollToTopAndPushRoute()" type="button" 
-                class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
+            <button v-if="coins.length === favoriteCoin.length" @click="scrollToTopAndPushRoute" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
                 Add more coins
             </button>
-            <button v-else-if="!isLoading && !error" @click="paginationStore.updateOffset(offset + items)" type="button" 
-                class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
-                Load More...
-            </button>
+            <div v-else-if="!isLoading && !error">
+                <p class="text-sm sm:text-base px-4 py-1.5 text-white">You have {{ favoriteCoin.length - coins.length }} favorite coins</p>
+            </div>
             <div v-else-if="isLoading" role="status">
                 <svg class="inline w-9 h-9 animate-spin text-gray-600 fill-blue-600" aria-hidden="true" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
@@ -62,8 +73,7 @@ watch(() => offset.value, () => {
                 </svg>
                 <span class="sr-only">Loading...</span>
             </div>
-            <button v-else @click="reloadPage()" type="button" 
-                class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
+            <button v-else @click="router.go(0)" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover.bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
                 Try again now
             </button>
         </div>

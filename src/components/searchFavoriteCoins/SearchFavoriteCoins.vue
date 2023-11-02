@@ -8,7 +8,7 @@ const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const valueInput: Ref<string> = ref("");
     
 const searchByEnter = () => {
-    const matchingElements = favoriteCoin.value.filter(item => item.includes(valueInput.value.trim().toLowerCase()));
+    const matchingElements = favoriteCoin.value.filter((item: string) => item.includes(valueInput.value.trim().toLowerCase()));
 
     if (matchingElements.length) { 
         searchCoinStore.updateSearchFavoritesParameters(matchingElements);
