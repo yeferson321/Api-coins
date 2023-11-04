@@ -3,7 +3,7 @@ import { toRefs, watchEffect } from 'vue';
 import { getSearchCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/indexInterface';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationStore } from '../../stores/paginationStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 import SearchCoins from '../searchCoins/SearchCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
@@ -15,7 +15,7 @@ import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amo
 
 const searchCoinStore = useSearchCoinStore();
 const { coins, stats, searchInput, isLoading, noFound, error } = toRefs(searchCoinStore);
-const { offset } = toRefs(usePaginationStore());
+const { offset } = toRefs(usePaginationCoinStore());
 const favoriteCoinStore = useFavoriteCoinStore();
 
 const fetchSearchResults = async (offset: number, searchInput: string) => {
@@ -41,7 +41,7 @@ watchEffect(() => {
             <thead class="text-xs sm:text-sm uppercase text-gray-400">
                 <tr>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">
-                        All Coins {{ stats.total !== 0 ? stats.total : '' }}
+                        All Coins {{ parseInt(stats.total)  !== 0 ? stats.total : '' }}
                     </th>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[22%] sm:w-[20%]">
                         Price
@@ -97,4 +97,4 @@ watchEffect(() => {
         <Error v-show="error"></Error>
     </section>
     <Pagination></Pagination>
-</template>
+</template>../../stores/paginationCoinStore

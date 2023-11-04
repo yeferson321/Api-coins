@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { usePaginationStore } from '../../stores/paginationStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
-const paginationStore = usePaginationStore();
+const paginationStore = usePaginationCoinStore();
 </script>
 
 <template>

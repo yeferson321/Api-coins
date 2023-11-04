@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, Ref, toRefs, watchEffect } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationStore } from '../../stores/paginationStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
 const { stats } = toRefs(useSearchCoinStore());
-const paginationStore = usePaginationStore();
+const paginationStore = usePaginationCoinStore();
 const { offset, items } = toRefs(paginationStore);
 const MIN_PAGES_TO_SHOW: Ref<number> = ref(3), MAX_PAGES_TO_SHOW: Ref<number> = ref(4);
 const isPreviousLinkEnabled: Ref<boolean> = ref(false), isNextLinkEnabled: Ref<boolean> = ref(false);
 const pagesToShow: Ref<number[]> = ref([]);
 
 const isPreviousClickEnabled = () => offset.value > 0;
-const isNextClickEnabled = () => offset.value < stats.value.total - items.value;
+const isNextClickEnabled = () => offset.value < parseInt(stats.value.total) - items.value;
 
 const calculatePageRange = (totalPages: number, currentPage: number) => {
     if (totalPages <= MAX_PAGES_TO_SHOW.value) { 
@@ -30,10 +30,8 @@ const calculatePageRange = (totalPages: number, currentPage: number) => {
 };
 
 const calculatePageNumbers = () => {
-    const totalPages: number = Math.ceil((stats.value.total || 1) / items.value);
+    const totalPages: number = Math.ceil((parseInt(stats.value.total) || 1) / items.value);
     const currentPage: number = (offset.value / items.value) + 1;
-
-
 
     isNextLinkEnabled.value = currentPage <= totalPages - MIN_PAGES_TO_SHOW.value;
     isPreviousLinkEnabled.value = currentPage > MIN_PAGES_TO_SHOW.value;
@@ -51,6 +49,7 @@ watchEffect(() => {
 <template>
     <nav aria-label="Page navigation">
         <div class="flex justify-center my-10">
+
             <div class="mr-3 sm:mr-5">
                 <a href="#" :class="[isPreviousClickEnabled() ? 'bg-blue-600 hover:bg-blue-700' : 'border-blue-600 border cursor-default', 'inline-flex items-center px-2.5 h-8 sm:px-4 sm:h-9 text-white rounded-full']"
                     @click="isPreviousClickEnabled() && paginationStore.updateOffset(offset - items)">
@@ -83,8 +82,8 @@ watchEffect(() => {
 
                 <li v-if="isNextLinkEnabled">
                     <a href="#" class="flex items-center px-2 h-8 fold:px-3.5 fold:h-9 text-white rounded-lg hover:bg-blue-600/30"
-                        @click="paginationStore.updateOffset(Math.max(0, (Math.ceil(stats.total / items) - 1) * items))">
-                        {{ Math.ceil(stats.total / items) }}
+                        @click="paginationStore.updateOffset(Math.max(0, (Math.ceil(parseInt(stats.total) / items) - 1) * items))">
+                        {{ Math.ceil(parseInt(stats.total)  / items) }}
                     </a>
                 </li>              
             </ul>
@@ -100,4 +99,4 @@ watchEffect(() => {
             </div>
         </div>
     </nav>
-</template>
+</template>../../stores/paginationCoinStore

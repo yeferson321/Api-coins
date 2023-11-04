@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia';
 
+interface favoriteCoinInterface {
+  favoriteCoin: string[]
+}
+
 export const useFavoriteCoinStore = defineStore('favoriteCoinStore', {
-  state: () => ({
+  state: (): favoriteCoinInterface => ({
     favoriteCoin: JSON.parse(localStorage.getItem('favorites') || '[]')
   }),
 
@@ -14,7 +18,7 @@ export const useFavoriteCoinStore = defineStore('favoriteCoinStore', {
         this.favoriteCoin.splice(index, 1);
       } else {
         this.favoriteCoin.push(coinIdentifier);
-      }
+      };
 
       localStorage.setItem('favorites', JSON.stringify(this.favoriteCoin));
     },

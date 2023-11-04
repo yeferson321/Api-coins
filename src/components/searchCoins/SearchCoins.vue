@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, Ref, toRefs, watch } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationStore } from '../../stores/paginationStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const searchCoinStore = useSearchCoinStore();
-const paginationStore = usePaginationStore();
+const paginationStore = usePaginationCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const valueInput: Ref<string> = ref("");
 
@@ -52,4 +52,4 @@ watch(valueInput, () => {
             </a>
         </div>
     </div>
-</template>
+</template>../../stores/paginationCoinStore

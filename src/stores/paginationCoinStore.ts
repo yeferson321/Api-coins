@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia';
-import { PaginationInterface } from '../interfaces/indexInterface';
 
-export const usePaginationStore = defineStore('paginationStore', {
+interface PaginationInterface {
+  offset: number;
+  items: number;
+}
+
+export const usePaginationCoinStore = defineStore('paginationCoinStore', {
   state: (): PaginationInterface => ({
     offset: 0,
     items: 50

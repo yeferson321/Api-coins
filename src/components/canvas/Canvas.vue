@@ -36,7 +36,7 @@ const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
 
 const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
     const filteredData: string[] = sparkline.filter(value => value !== null) ?? [];
-    const sparklineData: number[] = (filteredData).map(val => parseFloat(val));
+    const sparklineData: number[] = filteredData.map(value => parseFloat(value));
 
     return {
         labels: sparklineData.map((_, i) => i + 1),
@@ -85,34 +85,32 @@ const createChartConfig = (data: ChartInterface): ChartConfiguration => {
                     usePointStyle: false,
                 },
             },
-        },
+        }
     };
 };
 
-const renderChart = (sparkline: string[], change: string, index: number) => {
-    const canvas: HTMLCanvasElement | null = canvasRef.value;
+const renderChart = () => {
+    const canvas = canvasRef.value;
     if (!canvas) return;
 
-    const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const gradient: CanvasGradient = createGradient(ctx, change);
+    const gradient: CanvasGradient = createGradient(ctx, props.change);
     if (!gradient) return;
 
-    const data: ChartInterface = createData(sparkline, change, gradient);
+    const data: ChartInterface = createData(props.sparkline, props.change, gradient);
     const chartConfig = createChartConfig(data);
 
-    if (charts.value[index]) {
-        charts.value[index].destroy();
-    };
+    if (charts.value[props.index]) {
+        charts.value[props.index].destroy();
+    }
 
     const chart = new Chart(canvas, chartConfig);
-    charts.value[index] = chart;
+    charts.value[props.index] = chart;
 };
 
-watchEffect(() => {
-    renderChart(props.sparkline, props.change, props.index);
-});
+watchEffect(renderChart);
 </script>
 
 <template>

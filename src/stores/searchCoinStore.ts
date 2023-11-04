@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia';
-import { CoinInterface, StatsInterface, StoreInterface, initialStatsInterface } from '../interfaces/indexInterface';
+import { CoinInterface, StatsInterface, CoinStoreInterface, initialStatsInterface } from '../interfaces/indexInterface';
 
 export const useSearchCoinStore = defineStore('searchCoinStore', {
-  state: (): StoreInterface => ({
+  state: (): CoinStoreInterface => ({
     coins: [],
     stats: initialStatsInterface,
     isLoading: false,
     searchInput: '',
-    searchInputFavorites: [],
+    searchFavoriteCoin: [],
+    loadMore: false,
     noFound: false,
     noFavorites: false,
     error: false,
@@ -39,16 +40,36 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
     // Favorite Component
     responseSearchFavoriteCoins(coins: CoinInterface[], stats: StatsInterface) {
       this.isLoading = false;
+      //this.loadMore = true;
       this.coins = coins;
       this.stats = stats;
     },
 
-    responseSearchNoFavoriteCoins(newStats: StatsInterface) {
+    responseSearchNoFavoriteCoins() {
       this.isLoading = false;
       this.noFavorites = true;
-      //this.noFound = false;
-      this.stats = newStats;
     },
+
+    
+
+    updateNoFavorites() {
+      this.noFavorites = true;
+      this.noFound = false;
+    },
+
+    updateSearchFavoritesParameters(newValueInput: string[]) {
+      this.searchFavoriteCoin = newValueInput;
+      //this.loadMore = true;
+      this.noFound = false;
+    },
+
+    updateNoFound() {
+      this.noFound = true;
+      this.noFavorites = false;
+      this.coins = []
+
+    },
+
 
 
     updateCoins(uuid: string) {
@@ -59,20 +80,9 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       }
     },
     
-    updateSearchFavoritesParameters(newValueInput: string[]) {
-      this.searchInputFavorites = newValueInput;
+    updateLoadMore(newLoadMore: string){
+      this.loadMore = newLoadMore !== '';
     },
-
-    updateNoFavorites() {
-      this.noFavorites = true;
-      this.noFound = false;
-    },
-
-    updateNoFound() {
-      this.noFound = true;
-      this.noFavorites = false;
-    },
-
 
     // LoadMore Component
     updateMergedCoins(newCoins: CoinInterface[]){

@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import { onMounted, toRefs, watch } from 'vue';
-
 import { getSearchFavoritesCoins } from '../../services/CoinService';
-
 import { DataInterface } from '../../interfaces/DataInterface';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
-
 import SearchFavoriteCoins from '../searchFavoriteCoins/SearchFavoriteCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
 import LoadMore from '../loadMore/LoadMore.vue';
@@ -17,26 +14,23 @@ import Error from '../error/Error.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, searchInputFavorites, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
+const { coins, searchFavoriteCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
-const fetchSearchResults = async (searchFavoriteCoin: string[]) => {
+const fetchSearchResults = async (favoriteCoin: string[]) => {
     searchCoinStore.updateIsLoading();
-    try {
-        const { coins, stats }: DataInterface = await getSearchFavoritesCoins(searchFavoriteCoin);
-
-        if (searchFavoriteCoin.length) {
+    if (favoriteCoin.length) {
+        try {
+            const { coins, stats }: DataInterface = await getSearchFavoritesCoins(favoriteCoin);
             searchCoinStore.responseSearchFavoriteCoins(coins, stats);
-        } else {
-            searchCoinStore.responseSearchNoFavoriteCoins(stats);
-        }
-    } catch (err: unknown) {
-        searchCoinStore.responseSearchCoinsError();
-    }
-    console.log("object")
+        } catch (err: unknown) {
+            searchCoinStore.responseSearchCoinsError();
+        };
+    } else {
+        searchCoinStore.responseSearchNoFavoriteCoins();
+    };
 };
-
 
 const removeCoinFavorite = (uuid: string, name: string) => {
     searchCoinStore.updateCoins(uuid);
@@ -47,7 +41,7 @@ const removeCoinFavorite = (uuid: string, name: string) => {
     //     fetchSearchResults(favoriteCoin.value);
     // }
     if (favoriteCoin.value.length === 0) {
-        console.log("holas")
+ 
         searchCoinStore.updateNoFavorites()
         //fetchSearchResults(favoriteCoin.value);
     }
@@ -57,8 +51,8 @@ onMounted(() => {
     fetchSearchResults(favoriteCoin.value);
 });
 
-watch(() => searchInputFavorites.value, () => {
-    fetchSearchResults(searchInputFavorites.value);
+watch(() => searchFavoriteCoin.value, () => {
+    fetchSearchResults(searchFavoriteCoin.value);
 });
 </script>
 
@@ -121,7 +115,7 @@ watch(() => searchInputFavorites.value, () => {
                 </tr>
             </tbody>
         </table>
-        <LoadMore v-if="!error && favoriteCoin.length"></LoadMore>
+        <LoadMore v-if="!error && !noFound && !noFavorites"></LoadMore>
         <NoFound v-if="noFound"></NoFound>
         <NoFavorites v-if="noFavorites"></NoFavorites>
         <Error v-if="error"></Error>

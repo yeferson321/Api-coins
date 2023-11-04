@@ -1,6 +1,5 @@
-export type { ChartInterface } from './ChartInterface';
 export type { ResponseInterface } from './ResponseInterface';
+export type { ChartInterface } from './ChartInterface';
 export type { DataInterface, CoinInterface, StatsInterface } from './DataInterface';
-export type { StoreInterface } from './StoreInterface';
-export type { PaginationInterface } from './PaginationInterface';
+export type { CoinStoreInterface } from './CoinStoreInterface';
 export { initialStatsInterface } from './DataInterface';

@@ -18,7 +18,9 @@ const searchByEnter = () => {
 };
 
 watch(valueInput, () => {
-    
+
+    searchCoinStore.updateLoadMore(valueInput.value); 
+
     if (valueInput.value !== '') return;
 
     if (favoriteCoin.value.length) {

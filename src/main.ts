@@ -14,7 +14,7 @@ createApp(App).use(pinia).use(router).use(FloatingVue, {
             triggers: ['focus', 'hover'],
             delay: {
                 show: 0,
-                hide: 200,
+                hide: 100,
             },
             distance: 9,
             autoHide: true,
