@@ -14,7 +14,7 @@ import Error from '../error/Error.vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, searchFavoriteCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
+const { coins, stats, searchFavoriteCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
@@ -63,7 +63,7 @@ watch(() => searchFavoriteCoin.value, () => {
             <thead class="text-xs sm:text-sm uppercase text-gray-400">
                 <tr>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">
-                        All Coins {{ favoriteCoin.length ? favoriteCoin.length : '' }}
+                        All Coins {{ parseInt(stats.total) !== 0 ? stats.total : '' }}
                     </th>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[22%] sm:w-[20%]">
                         Price

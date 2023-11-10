@@ -50,16 +50,9 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.noFavorites = true;
     },
 
-    
-
-    updateNoFavorites() {
-      this.noFavorites = true;
-      this.noFound = false;
-    },
-
     updateSearchFavoritesParameters(newValueInput: string[]) {
       this.searchFavoriteCoin = newValueInput;
-      //this.loadMore = true;
+      // this.loadMore = true;
       this.noFound = false;
     },
 
@@ -67,10 +60,12 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.noFound = true;
       this.noFavorites = false;
       this.coins = []
-
     },
 
-
+    updateNoFavorites() {
+      this.noFavorites = true;
+      this.noFound = false;
+    },
 
     updateCoins(uuid: string) {
       const index = this.coins.findIndex(crypto => crypto.uuid === uuid);

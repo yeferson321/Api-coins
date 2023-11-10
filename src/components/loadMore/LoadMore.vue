@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, Ref, toRefs } from 'vue';
+import { onBeforeUnmount, onMounted, Ref, ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
 import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/DataInterface';
@@ -88,5 +88,5 @@ onBeforeUnmount(() => {
                 Try again now
             </button>
         </div>
-    </div>
-</template>../../stores/paginationCoinStore
+    </div> 
+</template>

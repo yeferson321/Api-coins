@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, toRefs, watchEffect } from 'vue';
+import { Ref, ref, toRefs, watchEffect } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
@@ -99,4 +99,4 @@ watchEffect(() => {
             </div>
         </div>
     </nav>
-</template>../../stores/paginationCoinStore
+</template>

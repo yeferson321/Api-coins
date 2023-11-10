@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, toRefs, watch } from "vue";
+import { Ref, ref, toRefs, watch } from "vue";
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
@@ -19,7 +19,7 @@ const searchByEnter = () => {
 
 watch(valueInput, () => {
 
-    searchCoinStore.updateLoadMore(valueInput.value); 
+    // searchCoinStore.updateLoadMore(valueInput.value); 
 
     if (valueInput.value !== '') return;
 
@@ -28,7 +28,6 @@ watch(valueInput, () => {
     } else {
         searchCoinStore.updateNoFavorites();
     };
-
 });
 </script>
 

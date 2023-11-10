@@ -1,58 +1,50 @@
 <script setup lang="ts">
-import { toRefs } from 'vue';
+import { Ref, ref, toRefs } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const { stats, error } = toRefs(useSearchCoinStore());
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
-
-const identifyRoute = () => {
-    const currentPath = window.location.pathname;
-    return currentPath === "/" ? "All Coins" : "Favorite coins";
-}
+const identifyRoute: Ref<boolean> = ref(window.location.pathname === "/favorites")
 
 const formatAmountWithSuffixe = (amount: number, error: boolean) => {
     if (error) return "--";
-    if (!favoriteCoin.value.length) return "$ --"
+    if (identifyRoute.value && !favoriteCoin.value.length) return "$ --";
     if (isNaN(amount)) return "Loading...";
 
-    const suffixes: string[] = ["", "K", "Million", "Billion", "Trillion"];
-    const precision: number = 2;
-    const symbol: string = "$";
-
-    let index: number = 0;
+    const suffixes = ["", "K", "Million", "Billion", "Trillion"];
+    let index = 0;
 
     while (amount >= 1000 && index < suffixes.length - 1) {
         amount /= 1000;
         index++;
-    };
+    }
 
-    return `${symbol} ${amount.toFixed(precision)} ${suffixes[index]}`;
+    return `${amount.toFixed(2)} ${suffixes[index]}`;
 };
 
-const formatAmountToDecimal = (amount: number, error: boolean) => {
+const formatAmountMileSeparator = (amount: number, error: boolean) => {
     if (error) return "--";
-    if (!favoriteCoin.value.length) return "No coins"
+    if (identifyRoute.value && !favoriteCoin.value.length) return "No Coins";
     if (isNaN(amount)) return "Loading...";
 
-    const options = { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 3 };
-    return amount.toLocaleString('en-US', options).replace('$', '$ ');
-}
+    return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });;
+};
 </script>
 
 <template>
     <section>
         <div class="mx-auto max-w-7xl text-center px-2.5 sm:px-6 lg:px-8 py-8 sm:py-14">
-            <h1 class="mb-8 text-6xl fold:text-7xl lg:text-8xl font-bold font-display text-white tracking-normal">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500 inline-flex mb-3">Crypto</span> Ranked Price
+            <h1 class="mb-8 text-6xl fold:text-7xl lg:text-8xl font-bold font-display text-white leading-tight">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500">Crypto</span> Ranked Price
             </h1>
-            <p class="mb-6 text-sm fold:text-base sm:text-lg lg:text-xl leading-0 fold:leading-8 fold:px-5 sm:px-16 md:px-32 lg:px-48 text-gray-400">
+            <p class="mb-6 text-sm fold:text-base sm:text-lg leading-7 sm:px-16 md:px-36 lg:px-56 text-gray-400">
                 All coins listed, you get circulating supplies, social links, logos, blocks. explorers, sparklines and more. We have it all.
             </p>
             <ul class="flex flex-row fold:justify-center scrollbar whitespace-nowrap overflow-x-auto touch-pan-x space-x-3 sm:space-x-5 lg:space-x-9">   
                 <!-- Market Cap -->
                 <li class="flex flex-col items-center">
-                    <span class="inline-flex items-center text-sm sm:text-base leading-9 whitespace-nowrap text-white">
+                    <span class="inline-flex items-center text-sm sm:text-base whitespace-nowrap text-white">
                         {{ formatAmountWithSuffixe(parseInt(stats.totalMarketCap), error) }}
                         <svg class="w-5 h-5 ml-2 stroke-blue-500 hover:stroke-blue-600 focus:outline-none" focusable="false" v-tooltip="'The market cap of All coins combined.'"
                             aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -60,11 +52,11 @@ const formatAmountToDecimal = (amount: number, error: boolean) => {
                         </svg>
                         <span class="sr-only">Show information</span>
                     </span>
-                    <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">Market Cap</span>
+                    <span class="text-sm sm:text-base whitespace-nowrap text-gray-400">Market Cap</span>
                 </li>
                 <!-- Trading Volume -->
                 <li class="flex flex-col items-center">
-                    <span class="inline-flex items-center text-sm sm:text-base leading-9 whitespace-nowrap text-white">
+                    <span class="inline-flex items-center text-sm sm:text-base whitespace-nowrap text-white">
                         {{ formatAmountWithSuffixe(parseInt(stats.total24hVolume), error) }}
                         <svg class="w-5 h-5 ml-2 stroke-blue-500 hover:stroke-blue-600 focus:outline-none" focusable="false" v-tooltip="'The 24-hour trading volume of All coins combined.'"
                             aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -72,12 +64,12 @@ const formatAmountToDecimal = (amount: number, error: boolean) => {
                         </svg>
                         <span class="sr-only">Show information</span>
                     </span>
-                    <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">Trading Volume</span>
+                    <span class="text-sm sm:text-base whitespace-nowrap text-gray-400">Trading Volume</span>
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base leading-9 text-white">{{ formatAmountToDecimal(parseInt(stats.total), error) }}</span>
-                    <span class="text-sm sm:text-base leading-7 whitespace-nowrap text-gray-400">{{ identifyRoute() }}</span>
+                    <span class="text-sm sm:text-base text-white">{{ formatAmountMileSeparator(parseInt(stats.total), error) }}</span>
+                    <span class="text-sm sm:text-base whitespace-nowrap text-gray-400">{{ identifyRoute ? "Favorite coins" : "All Coins" }}</span>
                 </li>
             </ul>
         </div>

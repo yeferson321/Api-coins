@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, watchEffect } from 'vue';
+import { Ref, ref, watchEffect } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { ChartInterface } from '../../interfaces/ChartInterface';
 

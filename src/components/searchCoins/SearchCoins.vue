@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, Ref, toRefs, watch } from 'vue';
+import { Ref, ref, toRefs, watch } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
@@ -52,4 +52,4 @@ watch(valueInput, () => {
             </a>
         </div>
     </div>
-</template>../../stores/paginationCoinStore
+</template>
