@@ -1,3 +1,4 @@
+// Defining an interface
 export interface DataInterface {
     stats: StatsInterface;
     coins: CoinInterface[];

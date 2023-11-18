@@ -1,3 +1,4 @@
+// Defining an interface
 export interface ChartInterface {
   labels: number[];
   datasets: {

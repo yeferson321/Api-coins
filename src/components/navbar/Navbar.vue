@@ -1,9 +1,9 @@
 <script setup lang="ts">
 const navigation = [
-  { name: 'Rapidapi', href: 'https://rapidapi.com/Coinranking/api/coinranking1', current: false },
-  { name: 'Coinranking', href: 'https://developers.coinranking.com/api', current: false },
-  { name: 'Chartjs', href: 'https://www.chartjs.org/docs/latest', current: false },
-  { name: 'GitHub', href: 'https://github.com/yeferson321/Api-coins', current: true},
+  { name: 'Rapidapi', href: 'https://rapidapi.com/Coinranking/api/coinranking1', button: false },
+  { name: 'Coinranking', href: 'https://developers.coinranking.com/api', button: false },
+  { name: 'Chartjs', href: 'https://www.chartjs.org/docs/latest', button: false },
+  { name: 'GitHub', href: 'https://github.com/yeferson321/Api-coins', button: true},
 ];
 </script>
 
@@ -23,7 +23,7 @@ const navigation = [
                 </div>
                 <div class="hidden sm:flex">
                     <div class="flex items-baseline space-x-4">
-                        <a v-for="item in navigation" :key="item.name" :href="item.href" target="_blank" rel="noopener" :class="[item.current ? 'text-white hover:text-black border border-white rounded-lg px-5 hover:bg-white transition duration-450 ease-in-out' : 'text-gray-400 hover:text-white', 'p-1 text-base']" aria-current="page">{{ item.name }}</a>
+                        <a v-for="item in navigation" :key="item.name" :href="item.href" target="_blank" rel="noopener" :class="[item.button ? 'text-white hover:text-black border border-white rounded-lg px-5 hover:bg-white transition duration-450 ease-in-out' : 'text-gray-400 hover:text-white', 'p-1 text-base']" aria-current="page">{{ item.name }}</a>
                     </div>
                 </div>
             </div>

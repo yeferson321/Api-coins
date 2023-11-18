@@ -1,37 +1,43 @@
 <script setup lang="ts">
 import { toRefs, watchEffect } from 'vue';
-import { getSearchCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/indexInterface';
+import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
+import { getSearchCoins } from '../../services/CoinService';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import SearchCoins from '../searchCoins/SearchCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
 import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
 import Pagination from '../pagination/Pagination.vue';
-import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
+// Get instances of the stores and references to their reactive attributes
 const searchCoinStore = useSearchCoinStore();
 const { coins, stats, searchInput, isLoading, noFound, error } = toRefs(searchCoinStore);
-const { offset } = toRefs(usePaginationCoinStore());
 const favoriteCoinStore = useFavoriteCoinStore();
+const { offset } = toRefs(usePaginationCoinStore());
 
+// Function to search results based on offset and search value
 const fetchSearchResults = async (offset: number, searchInput: string) => {
-    searchCoinStore.updateIsLoading();
+    searchCoinStore.setIsLoading();
     try {
+        // Get search data from the service
         const { coins, stats }: DataInterface = await getSearchCoins(offset, searchInput);
-        searchCoinStore.responseSearchCoins(coins, stats);
+        // Determine if no results were found
+        const noFoundResult: boolean = coins.length === 0;
+        // Update the search store with the results obtained
+        searchCoinStore.setSearchCoins(coins, stats, noFoundResult);
     } catch (err: unknown) {
         //console.error(err);
-        searchCoinStore.responseSearchCoinsError();
+        // On error, set an error status in the search store
+        searchCoinStore.setSearchError();
     };
 };
 
-watchEffect(() => {
-    fetchSearchResults(offset.value, searchInput.value);
-});
+// Reactive observer to run the lookup every time the offset or lookup value changes
+watchEffect(() => fetchSearchResults(offset.value, searchInput.value));
 </script>
 
 <template>
@@ -97,4 +103,4 @@ watchEffect(() => {
         <Error v-show="error"></Error>
     </section>
     <Pagination></Pagination>
-</template>../../stores/paginationCoinStore
+</template>

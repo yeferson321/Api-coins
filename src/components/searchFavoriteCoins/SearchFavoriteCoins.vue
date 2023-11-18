@@ -2,32 +2,22 @@
 import { Ref, ref, toRefs, watch } from "vue";
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
 const searchCoinStore = useSearchCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+const paginationCoinStore = usePaginationCoinStore();
 const valueInput: Ref<string> = ref("");
-    
-const searchByEnter = () => {
-    const matchingElements = favoriteCoin.value.filter((item: string) => item.includes(valueInput.value.trim().toLowerCase()));
 
-    if (matchingElements.length) { 
-        searchCoinStore.updateSearchFavoritesParameters(matchingElements);
-    } else {
-        searchCoinStore.updateNoFound();
-    };
+const searchByEnter = () => {
+    const matchingElements = favoriteCoin.value.filter(item => item.includes(valueInput.value.trim().toLowerCase()));
+    matchingElements.length ? searchCoinStore.setSearchFavorites(matchingElements) : searchCoinStore.updateView(true);
 };
 
 watch(valueInput, () => {
-
-    // searchCoinStore.updateLoadMore(valueInput.value); 
-
     if (valueInput.value !== '') return;
-
-    if (favoriteCoin.value.length) {
-        searchCoinStore.updateSearchFavoritesParameters(favoriteCoin.value);
-    } else {
-        searchCoinStore.updateNoFavorites();
-    };
+    favoriteCoin.value.length ? searchCoinStore.setSearchFavorites([]) : searchCoinStore.updateView(false);
+    paginationCoinStore.resetOffset();
 });
 </script>
 

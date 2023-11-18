@@ -7,80 +7,59 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
     stats: initialStatsInterface,
     isLoading: false,
     searchInput: '',
-    searchFavoriteCoin: [],
-    loadMore: false,
+    searchFavorite: JSON.parse(localStorage.getItem('favorites') || '[]'),
     noFound: false,
     noFavorites: false,
-    error: false,
+    error: false
   }),
 
   actions: {
     // All Components
-    updateIsLoading() {
+    setIsLoading() {
       this.isLoading = true;
     },
 
-    responseSearchCoinsError() {
+    setSearchError() {
       this.isLoading = false;
       this.error = true;
     },
 
-    // Coins Component
-    responseSearchCoins(coins: CoinInterface[], stats: StatsInterface) {
+    setSearchCoins(coins: CoinInterface[], stats: StatsInterface, newNoFound: boolean) {
       this.isLoading = false;
+      this.noFound = newNoFound;
       this.coins = coins;
       this.stats = stats;
-      this.noFound = coins.length === 0
     },
 
-    updateSearchParameters(newValueInput: string) {
+    // Coins Component
+    setSearchInput(newValueInput: string) {
       this.searchInput = newValueInput;
     },
 
     // Favorite Component
-    responseSearchFavoriteCoins(coins: CoinInterface[], stats: StatsInterface) {
-      this.isLoading = false;
-      //this.loadMore = true;
-      this.coins = coins;
-      this.stats = stats;
+    setSearchFavorites(newValueInput: string[]) {
+      this.searchFavorite = newValueInput;
     },
 
-    responseSearchNoFavoriteCoins() {
-      this.isLoading = false;
+    setNoFavorites() {
       this.noFavorites = true;
     },
 
-    updateSearchFavoritesParameters(newValueInput: string[]) {
-      this.searchFavoriteCoin = newValueInput;
-      // this.loadMore = true;
-      this.noFound = false;
+    updateView(state: boolean) {
+      this.noFound = state;
+      this.noFavorites = !state;
+      this.coins = [];
     },
 
-    updateNoFound() {
-      this.noFound = true;
-      this.noFavorites = false;
-      this.coins = []
-    },
-
-    updateNoFavorites() {
-      this.noFavorites = true;
-      this.noFound = false;
-    },
-
-    updateCoins(uuid: string) {
+    removeCoin(uuid: string) {
       const index = this.coins.findIndex(crypto => crypto.uuid === uuid);
-
       if (index !== -1) {
         this.coins.splice(index, 1);
       }
     },
     
-    updateLoadMore(newLoadMore: string){
-      this.loadMore = newLoadMore !== '';
-    },
-
     // LoadMore Component
-    updateMergedCoins(newCoins: CoinInterface[]){
+    mergeCoins(newCoins: CoinInterface[]){
       const mergedCoins = [...this.coins, ...newCoins];
       this.coins = mergedCoins;
     }

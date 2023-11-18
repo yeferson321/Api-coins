@@ -2,17 +2,25 @@
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-## Recommended IDE Setup
+## About
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+Website: (https://coinsver.netlify.app/)
 
-## Type Support For `.vue` Imports in TS
+This project is part of my `personal portfolio`. Access real-time cryptocurrency price list for coins like BTC, DOGE and thousands more, all coins are listed, you get circulating supplies, social links, logos, explorer blocks, sparklines. Data is available in JSON, XML, or HTML format. Api: (https://developers.coinranking.com/api/documentation)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+## Your unique API key
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+Create a .env file and add your VITE_TOKEN_ENV.
+You can always find it on your account page (https://developers.coinranking.com/api)
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## Development server
+
+Run `npm run dev` for a development server or run `npm run dev --0.0.0.0` for a local network level server. Navigate to `http://localhost:4200/` or `http:// your local ip :5173/` if it is a local network. The application will automatically reload if you change any of the source files.
+
+## Build
+
+Run `npm run build` to build the project.. The build artifacts will be stored in the `dist/` directory.
+
+## Further help
+
+For more help on Vue, see the [Vue js Introduction and Quick Start](https://vuejs.org/guide/introduction.html) page.

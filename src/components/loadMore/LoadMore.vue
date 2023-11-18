@@ -10,36 +10,32 @@ import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 const router = useRouter();
 const searchCoinStore = useSearchCoinStore();
 const paginationStore = usePaginationCoinStore();
-const { coins, loadMore } = toRefs(searchCoinStore);
+const { coins } = toRefs(searchCoinStore);
 const { offset, items } = toRefs(paginationStore);
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const isLoading: Ref<boolean> = ref(false);
 const error: Ref<boolean> = ref(false);
 
-const scrollToTop = () => {
-    searchCoinStore.updateLoadMore(""); 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    searchCoinStore.updateSearchFavoritesParameters(favoriteCoin.value)
-}
-
 const scrollToTopAndPushRoute = () => {
-    paginationStore.updateOffset(0);
+    paginationStore.resetOffset();
     router.push('/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const fetchMoreCoins = async (favoriteCoin: string[], offset: number) => {
+const fetchMoreCoins = async (favoriteCoin: string[]) => {
     if (isLoading.value) return;
-
+    
+    paginationStore.setOffset(offset.value + items.value)
     isLoading.value = true;
     try {
-        const { coins }: DataInterface = await getSearchFavoritesCoins(favoriteCoin, offset);
-        searchCoinStore.updateMergedCoins(coins)
+        
+        const { coins: fetchedCoins }: DataInterface = await getSearchFavoritesCoins(favoriteCoin, offset.value);
+        searchCoinStore.mergeCoins(fetchedCoins);
     } catch (err: unknown) {
         error.value = true;
     } finally {
         isLoading.value = false;
-    };
+    }
 };
 
 const scrollFetch = () => {
@@ -47,35 +43,25 @@ const scrollFetch = () => {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
 
-    if (coins.value.length === favoriteCoin.value.length || loadMore.value) return;
+    if (favoriteCoin.value.length === coins.value.length || coins.value.length < items.value) return;
 
-    if (scrollY + windowHeight >= documentHeight - 300) {
-        fetchMoreCoins(favoriteCoin.value, offset.value + items.value);
-    };
+    if (scrollY + windowHeight <= documentHeight - 300) return;
+    fetchMoreCoins(favoriteCoin.value);
 };
 
-onMounted(() => {
-    window.addEventListener('scroll', scrollFetch);
-});
+onMounted(() => window.addEventListener('scroll', scrollFetch));
 
-onBeforeUnmount(() => {
-    window.removeEventListener('scroll', scrollFetch);
-});
-
-
+onBeforeUnmount(() => window.removeEventListener('scroll', scrollFetch));
 </script>
 
 <template>
     <div class="py-10">
         <div class="text-center">    
-            <button v-if="loadMore" @click="scrollToTop" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
-                See all coins
-            </button>      
-            <button v-else-if="coins.length === favoriteCoin.length" @click="scrollToTopAndPushRoute" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
+            <button v-if="favoriteCoin.length === coins.length || coins.length < items" @click="scrollToTopAndPushRoute" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
                 Add more coins
-            </button>
+            </button>            
             <div v-else-if="!isLoading && !error">
-                <p class="text-sm sm:text-base text-white">You have {{ favoriteCoin.length - coins.length }} favorite coins</p>
+                <p class="text-sm sm:text-base text-white">You have {{ favoriteCoin.length - coins.length }} coins left</p>
             </div>
             <div v-else-if="isLoading" role="status">
                 <svg class="inline w-9 h-9 animate-spin text-gray-600 fill-blue-600" aria-hidden="true" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -84,9 +70,6 @@ onBeforeUnmount(() => {
                 </svg>
                 <span class="sr-only">Loading...</span>
             </div>
-            <button v-else @click="router.go(0)" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover.bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
-                Try again now
-            </button>
         </div>
     </div> 
 </template>

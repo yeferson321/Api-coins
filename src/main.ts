@@ -1,14 +1,19 @@
 import { createApp } from 'vue';
-import router from './router/main';
-import './style.css';
 import { createPinia } from 'pinia';
 import App from './App.vue';
+import router from './router/main';
 import FloatingVue from 'floating-vue';
 import 'floating-vue/dist/style.css';
+import './style.css';
 
+// Create a Pinia instance to manage global state
 const pinia = createPinia();
 
-createApp(App).use(pinia).use(router).use(FloatingVue, {
+// Initialize the Vue application with additional configurations and libraries
+createApp(App)
+.use(pinia) // Use Pinia for global state
+.use(router) // Use the router
+.use(FloatingVue, { // Theme settings for tooltips
     themes: {
         'tooltip': {
             triggers: ['focus', 'hover'],
@@ -19,7 +24,7 @@ createApp(App).use(pinia).use(router).use(FloatingVue, {
             distance: 9,
             autoHide: true,
             placement: 'top',
-            autoSize: 'min',
+            autoSize: 'min'
         }
     },
 }).mount('#app');

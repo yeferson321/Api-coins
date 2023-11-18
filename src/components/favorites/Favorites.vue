@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { onMounted, toRefs, watch } from 'vue';
-import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/DataInterface';
+import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
+import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 import SearchFavoriteCoins from '../searchFavoriteCoins/SearchFavoriteCoins.vue';
@@ -11,48 +12,39 @@ import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import NoFavorites from '../noFavorites/NoFavorites.vue';
 import Error from '../error/Error.vue';
-import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
 
 const searchCoinStore = useSearchCoinStore();
-const { coins, stats, searchFavoriteCoin, isLoading, noFound, noFavorites, error } = toRefs(searchCoinStore);
+const { coins, stats, searchFavorite, isLoading, noFound, noFavorites, error } = toRefs(useSearchCoinStore());
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
-const fetchSearchResults = async (favoriteCoin: string[]) => {
-    searchCoinStore.updateIsLoading();
-    if (favoriteCoin.length) {
-        try {
-            const { coins, stats }: DataInterface = await getSearchFavoritesCoins(favoriteCoin);
-            searchCoinStore.responseSearchFavoriteCoins(coins, stats);
-        } catch (err: unknown) {
-            searchCoinStore.responseSearchCoinsError();
-        };
-    } else {
-        searchCoinStore.responseSearchNoFavoriteCoins();
+const fetchSearchResults = async (searchFavoriteCoin: string[], favoriteCoin: string[]) => {
+    if (!favoriteCoin.length) return searchCoinStore.setNoFavorites();
+
+    let valueSearch = searchFavoriteCoin.length ? searchFavoriteCoin : favoriteCoin;
+
+    searchCoinStore.setIsLoading();
+    try {
+        const { coins, stats }: DataInterface = await getSearchFavoritesCoins(valueSearch);
+        searchCoinStore.setSearchCoins(coins, stats, false);
+    } catch (err: unknown) {
+        //console.error(err);
+        searchCoinStore.setSearchError();
     };
 };
 
 const removeCoinFavorite = (uuid: string, name: string) => {
-    searchCoinStore.updateCoins(uuid);
+    searchCoinStore.removeCoin(uuid);
     favoriteCoinStore.toggleFavoriteCoin(uuid, name);
-    
-    // if (!coins.value.length) {
-    //     console.log("holas")
-    //     fetchSearchResults(favoriteCoin.value);
-    // }
-    if (favoriteCoin.value.length === 0) {
- 
-        searchCoinStore.updateNoFavorites()
-        //fetchSearchResults(favoriteCoin.value);
-    }
+
+    if (coins.value.length) return;
+    favoriteCoin.value.length ? fetchSearchResults(searchFavorite.value, favoriteCoin.value) : searchCoinStore.setNoFavorites();
 };
 
-onMounted(() => {
-    fetchSearchResults(favoriteCoin.value);
-});
+onMounted(() => { fetchSearchResults(searchFavorite.value, favoriteCoin.value)});
 
-watch(() => searchFavoriteCoin.value, () => {
-    fetchSearchResults(searchFavoriteCoin.value);
+watch(() => searchFavorite.value, () => {
+    fetchSearchResults(searchFavorite.value, favoriteCoin.value);
 });
 </script>
 
@@ -62,8 +54,8 @@ watch(() => searchFavoriteCoin.value, () => {
         <table class="w-full min-w-[260px] table-fixed text-xs sm:text-sm text-left text-white">
             <thead class="text-xs sm:text-sm uppercase text-gray-400">
                 <tr>
-                    <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">
-                        All Coins {{ parseInt(stats.total) !== 0 ? stats.total : '' }}
+                    <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">                     
+                        All Coins {{ parseInt(stats.total) !== 0 ? stats.total : '0' }}
                     </th>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[22%] sm:w-[20%]">
                         Price

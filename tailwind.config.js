@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     screens: {
+      // Custom properties
       'fold': '350px', //@media (min-width: 340px) { ... }
       'sm': '640px', //@media (min-width: 640px) { ... }
       'md': '768px', //@media (min-width: 768px) { ... }
@@ -14,6 +15,7 @@ export default {
       '2xl': '1536px',	//@media (min-width: 1536px) { ... }
     },
     fontFamily: {
+      // Custom properties
       'sans': ['Quicksand', 'sans-serif'],
       'display': ['Varela Round', 'sans-serif'],
       'cursive': ['MuseoModerno', 'cursive']

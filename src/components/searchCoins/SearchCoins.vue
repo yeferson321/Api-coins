@@ -1,23 +1,28 @@
 <script setup lang="ts">
 import { Ref, ref, toRefs, watch } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
+// Get instances of the stores and references to their reactive attributes
 const searchCoinStore = useSearchCoinStore();
-const paginationStore = usePaginationCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+const paginationCoinStore = usePaginationCoinStore();
 const valueInput: Ref<string> = ref("");
 
+// Function to perform the search when pressing Enter
 const searchByEnter = () => {
-    searchCoinStore.updateSearchParameters(valueInput.value.trim());
-    paginationStore.updateOffset(0);
+    // Set the search value in the search store and reset the paging offset
+    searchCoinStore.setSearchInput(valueInput.value.trim().toLowerCase());
+    paginationCoinStore.resetOffset();
 };
 
+// Observe changes in the search value to handle resetting it and the offset
 watch(valueInput, () => {
+    // If the search value is empty, it is reset to the search and paging stores
     if (valueInput.value !== '') return;
-    searchCoinStore.updateSearchParameters("");
-    paginationStore.updateOffset(0);
+    searchCoinStore.setSearchInput("");
+    paginationCoinStore.resetOffset();
 });
 </script>
 

@@ -18,7 +18,7 @@ const formatAmountWithSuffixe = (amount: number, error: boolean) => {
     while (amount >= 1000 && index < suffixes.length - 1) {
         amount /= 1000;
         index++;
-    }
+    };
 
     return `${amount.toFixed(2)} ${suffixes[index]}`;
 };
@@ -68,7 +68,7 @@ const formatAmountMileSeparator = (amount: number, error: boolean) => {
                 </li>
                 <!-- Total Coins -->
                 <li class="flex flex-col items-center">
-                    <span class="text-sm sm:text-base text-white">{{ formatAmountMileSeparator(parseInt(stats.total), error) }}</span>
+                    <span class="text-sm sm:text-base text-white">{{ formatAmountMileSeparator( identifyRoute ? favoriteCoin.length : parseInt(stats.total), error) }}</span>
                     <span class="text-sm sm:text-base whitespace-nowrap text-gray-400">{{ identifyRoute ? "Favorite coins" : "All Coins" }}</span>
                 </li>
             </ul>
