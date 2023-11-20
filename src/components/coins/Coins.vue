@@ -13,30 +13,30 @@ import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
 import Pagination from '../pagination/Pagination.vue';
 
-// Get instances of the stores and references to their reactive attributes
+// Get instances of the stores and references to their reactive attributes.
 const searchCoinStore = useSearchCoinStore();
 const { coins, stats, searchInput, isLoading, noFound, error } = toRefs(searchCoinStore);
 const favoriteCoinStore = useFavoriteCoinStore();
 const { offset } = toRefs(usePaginationCoinStore());
 
-// Function to search results based on offset and search value
+// The `fetchSearchResults` function searches results based on offset and search value.
 const fetchSearchResults = async (offset: number, searchInput: string) => {
     searchCoinStore.setIsLoading();
     try {
-        // Get search data from the service
+        // The line is destructuring the response object returned by the `getSearchCoins` function.
         const { coins, stats }: DataInterface = await getSearchCoins(offset, searchInput);
-        // Determine if no results were found
+        // The line is checking if the `coins` array is empty.
         const noFoundResult: boolean = coins.length === 0;
-        // Update the search store with the results obtained
+        // The line is updating the reactive attributes `coins`, `stats`, and `noFound` in the `searchCoinStore` store with the provided values.
         searchCoinStore.setSearchCoins(coins, stats, noFoundResult);
     } catch (err: unknown) {
         //console.error(err);
-        // On error, set an error status in the search store
+        // The line indicates that an error occurred during the search process.
         searchCoinStore.setSearchError();
     };
 };
 
-// Reactive observer to run the lookup every time the offset or lookup value changes
+// The `watchEffect` function is used to run the `fetchSearchResults` function whenever the `offset` or `searchInput` values change.
 watchEffect(() => fetchSearchResults(offset.value, searchInput.value));
 </script>
 

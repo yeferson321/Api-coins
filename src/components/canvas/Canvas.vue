@@ -18,9 +18,10 @@ const props = defineProps({
     }
 });
 
+// The line is using the `useCanvas` function to initializes and retrieves the `canvasRef` variable and the `renderChart` function.
 const { canvasRef, renderChart } = useCanvas(props);
 
-// Watch for changes in props and render the chart accordingly
+// The `watch` function is used to watch for changes in the `props` variable.
 watchEffect(renderChart);
 </script>
 

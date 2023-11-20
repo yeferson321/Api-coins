@@ -47,6 +47,8 @@ const scrollFetch = () => {
 
     if (scrollY + windowHeight <= documentHeight - 300) return;
     fetchMoreCoins(favoriteCoin.value);
+
+    console.log(offset.value)
 };
 
 onMounted(() => window.addEventListener('scroll', scrollFetch));

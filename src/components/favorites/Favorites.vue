@@ -13,36 +13,51 @@ import NoFound from '../noFound/NoFound.vue';
 import NoFavorites from '../noFavorites/NoFavorites.vue';
 import Error from '../error/Error.vue';
 
+// Get instances of the stores and references to their reactive attributes.
 const searchCoinStore = useSearchCoinStore();
 const { coins, stats, searchFavorite, isLoading, noFound, noFavorites, error } = toRefs(useSearchCoinStore());
 const favoriteCoinStore = useFavoriteCoinStore();
 const { favoriteCoin } = toRefs(favoriteCoinStore);
 
+// The `fetchSearchResults` function is an asynchronous function that is responsible for fetching search results based on the provided search criteria.
 const fetchSearchResults = async (searchFavoriteCoin: string[], favoriteCoin: string[]) => {
     if (!favoriteCoin.length) return searchCoinStore.setNoFavorites();
 
+    // The line assigns the value of `searchFavoriteCoin` to the variable `valueSearch` if `searchFavoriteCoin` has a length greater than 0. Otherwise, 
+    // it assigns the value of `favoriteCoin` to `valueSearch`.
     let valueSearch = searchFavoriteCoin.length ? searchFavoriteCoin : favoriteCoin;
 
     searchCoinStore.setIsLoading();
     try {
+        // The line is destructuring the response object returned by the `getSearchCoins` function.
         const { coins, stats }: DataInterface = await getSearchFavoritesCoins(valueSearch);
+        // The line is updating the reactive attributes `coins`, `stats`, and `noFound` in the `searchCoinStore` store with the provided values.
         searchCoinStore.setSearchCoins(coins, stats, false);
     } catch (err: unknown) {
         //console.error(err);
+        // The line indicates that an error occurred during the search process.
         searchCoinStore.setSearchError();
     };
 };
 
+// The `removeCoinFavorite` function is responsible for removing a coin from the favorite list.
 const removeCoinFavorite = (uuid: string, name: string) => {
+    // This line removes a coin from the `searchCoinStore` store. Takes the parameter "uuid", which is the unique identifier of the currency to be removed.
     searchCoinStore.removeCoin(uuid);
+    // This line removing the coin from the store and also from the localstore.
     favoriteCoinStore.toggleFavoriteCoin(uuid, name);
 
+    // This code block is checking if there are any coins in the `coins` array.
     if (coins.value.length) return;
+    // This line checks if there are favorite coins in the `favoriteCoin` array. If there are, call the `fetchSearchResults` function with the values `searchFavorite` 
+    // and `favoriteCoin`. If there are no favorite coins, call the `searchCoinStore.setNoFavorites()` function to set the `noFavorites` flag in the `searchCoinStore` store.
     favoriteCoin.value.length ? fetchSearchResults(searchFavorite.value, favoriteCoin.value) : searchCoinStore.setNoFavorites();
 };
 
+// The `onMounted` function is a lifecycle hook provided by Vue. It is used to perform an action when the component is mounted and ready to be rendered.
 onMounted(() => { fetchSearchResults(searchFavorite.value, favoriteCoin.value)});
 
+// The `watch` function is used to watch for changes in the `searchFavorite` variable.
 watch(() => searchFavorite.value, () => {
     fetchSearchResults(searchFavorite.value, favoriteCoin.value);
 });

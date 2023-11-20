@@ -1,36 +1,42 @@
-// ChartLogic.ts
+// CanvasLogic.ts
 import { Ref, ref } from 'vue';
 import { Chart, ChartConfiguration } from 'chart.js/auto';
 import { ChartInterface, PropsInterface } from '../../interfaces/indexInterface';
 
 export const useCanvas = (props: PropsInterface) => {
-    // Define reactive references
+    /* The code is defining two reactive references using the `ref`. */
     const charts: Ref<Chart[]> = ref([]);
     const canvasRef: Ref<null | HTMLCanvasElement> = ref(null);
-    
-    // Function to create gradient for the chart
+
+    /* The `createGradient` function creates a linear gradient for a canvas element. */
     const createGradient = (ctx: CanvasRenderingContext2D, change: string) => {
-        // Create a linear gradient from top to bottom
+        /* The line is creating a linear gradient for a canvas element. */
         const gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 0, 24);
-        // Define gradient color stops based on the change value
+
+        /* The line is adding a color stop to the gradient. */
         gradient.addColorStop(0, change ? change?.includes("-") ? "#DC2626b3" : "#4EDE80C4" : "#3B82F680");
+        /* The line is adding a color stop to the gradient. In this case, it is adding a transparent color stop at the end of the gradient.
+        This means that the color of the gradient will gradually fade to transparent at the end. */
         gradient.addColorStop(1, "transparent");
-    
-        // Fill the canvas with the created gradient
+
+        /* The line is setting the fill style of the canvas context to the specified gradient. */
         ctx.fillStyle = gradient;
+        /* The line is drawing a filled rectangle on the canvas. The rectangle starts at the coordinates (0, 0) and has a width of 100
+        pixels and a height of 20 pixels. */
         ctx.fillRect(0, 0, 100, 20);
-    
+
         return gradient;
     }
-    
-    // Function to create chart data
+
+    /* The `createData` function takes in a sparkline array, change value, and gradient, and returns an object with data formatted for a chart. */
     const createData = (sparkline: string[], change: string, gradient: CanvasGradient) => {
-        // Filter out null values from sparkline data
+        /* The line is filtering out any null values from the `sparkline` array. */
         const filteredData: string[] = sparkline.filter(value => value !== null) ?? [];
-        // Convert sparkline data to an array of numbers
+
+        /* The line is converting the `filteredData` array, which contains string values, into an array of numbers. */
         const sparklineData: number[] = filteredData.map(value => parseFloat(value));
-    
-        // Generate data for the chart
+
+        /* The code is returning an object that represents the data for a chart. */
         return {
             labels: sparklineData.map((_, i) => i + 1),
             datasets: [
@@ -40,74 +46,76 @@ export const useCanvas = (props: PropsInterface) => {
                     borderWidth: 1,
                     pointRadius: 0,
                     pointHoverBorderWidth: 1,
-                    fill: true,
-                    // Define border color based on the change value
-                    borderColor: change ? change.includes("-") ? "#DC2626" : "#4ADE80" : "#3B82F680",
+                    fill: true,                  
+                    borderColor: change ? change.includes("-") ? "#DC2626" : "#4ADE80" : "#3B82F680", // Define border color based on the change value.
                     backgroundColor: gradient,
                 }
             ]
         };
     };
-    
-    // Function to configure chart options
+
+    /* The function `createChartConfig` creates a chart configuration object for a line chart with provided data and specific options. */
     const createChartConfig = (data: ChartInterface): ChartConfiguration => {
         return {
-            type: "line", // Chart type as a line chart
-            data, // Provided data for the chart
+            type: "line", // Chart type as a line chart.
+            data, // Provided data for the chart.
             options: {
-                responsive: true, // Chart responsiveness
-                maintainAspectRatio: false, // Aspect ratio of the chart
+                responsive: true, // Chart responsiveness.
+                maintainAspectRatio: false, // Aspect ratio of the chart.
                 animation: {
-                    duration: 0, // Disabling animations
+                    duration: 0, // Disabling animations.
                 },
                 scales: {
                     y: {
-                        display: false, // Display Y-axis
+                        display: false, // Display Y-axis.
                     },
                     x: {
-                        display: false, // Display X-axis
+                        display: false, // Display X-axis.
                     },
                 },
                 plugins: {
                     legend: {
-                        display: false, // Hide chart legend
+                        display: false, // Hide chart legend.
                     },
                     title: {
-                        display: false, // Hide chart title
+                        display: false, // Hide chart title.
                     },
                     tooltip: {
-                        enabled: false, // Disable chart tooltips
-                        usePointStyle: false, // Disable point-style tooltips
+                        enabled: false, // Disable chart tooltips.
+                        usePointStyle: false, // Disable point-style tooltips.
                     }
                 }
             }
         };
     };
-    
-    // Function to render the chart
+
+    /* The `renderChart` function creates and renders a chart on a canvas element based on the provided data and configuration. */
     const renderChart = () => {
-        // Retrieve canvas element
+        /* The code is retrieving the value of the `canvasRef` reference, which is a reference to a canvas element. */
         const canvas: HTMLCanvasElement | null = canvasRef.value;
         if (!canvas) return;
-    
-        // Retrieve canvas context
+
+        /* The code is retrieving the 2D rendering context of the canvas element using the `getContext` method. */
         const ctx: CanvasRenderingContext2D | null = canvas.getContext("2d");
         if (!ctx) return;
-    
-        // Create gradient for the chart
+
+        /* The code is creating a gradient for the chart based on the "change" value passed as a prop. It calls the `createGradient` function and passes
+        the canvas rendering context (`ctx`) and the "change" value (`props.change`) as arguments. */
         const gradient: CanvasGradient = createGradient(ctx, props.change);
         if (!gradient) return;
-    
-        // Generate chart data
+
+        /* The code is creating the data and configuration for rendering a chart. */
         const data: ChartInterface = createData(props.sparkline, props.change, gradient);
         const chartConfig = createChartConfig(data);
-    
-        // Check if chart already exists and destroy it
+
+        /* The code block is checking if a chart already exists at the specified index in the `charts` array. If a chart exists, it calls the `destroy()` 
+        method on the chart object to remove it from the DOM and clean up any associated resources. */
         if (charts.value[props.index]) {
             charts.value[props.index].destroy();
         };
-    
-        // Create and store new chart
+
+        /* The code is creating a new instance of the `Chart` class and assigning it to the `chart` variable. It then assigns this chart instance to the
+        `charts` array at the specified index (`props.index`). */
         const chart = new Chart(canvas, chartConfig);
         charts.value[props.index] = chart;
     };

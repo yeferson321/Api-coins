@@ -4,19 +4,26 @@ import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
+// Get instances of the stores and references to their reactive attributes
 const searchCoinStore = useSearchCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const paginationCoinStore = usePaginationCoinStore();
 const valueInput: Ref<string> = ref("");
 
+// This function performs the search when pressing Enter
 const searchByEnter = () => {
+    // The line is filtering the `favoriteCoin` array to find elements that include the value entered in the input field.
     const matchingElements = favoriteCoin.value.filter(item => item.includes(valueInput.value.trim().toLowerCase()));
+    // The line is checking if there are any matching elements in the `favoriteCoin` array based on the value entered in the input field.
     matchingElements.length ? searchCoinStore.setSearchFavorites(matchingElements) : searchCoinStore.updateView(true);
 };
 
+// The `watch` function is used to watch for changes in the `valueInput` variable.
 watch(valueInput, () => {
     if (valueInput.value !== '') return;
+    // The line is checking if the `favoriteCoin` array has any elements.
     favoriteCoin.value.length ? searchCoinStore.setSearchFavorites([]) : searchCoinStore.updateView(false);
+    // The line is responsible for resetting the offset value used for pagination.
     paginationCoinStore.resetOffset();
 });
 </script>

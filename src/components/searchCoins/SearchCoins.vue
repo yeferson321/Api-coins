@@ -10,18 +10,20 @@ const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const paginationCoinStore = usePaginationCoinStore();
 const valueInput: Ref<string> = ref("");
 
-// Function to perform the search when pressing Enter
+// This function performs the search when pressing Enter
 const searchByEnter = () => {
-    // Set the search value in the search store and reset the paging offset
+    // The line sets the search input value in `searchCoinStore` to the trimmed, lowercase version of the `valueInput` variable.
     searchCoinStore.setSearchInput(valueInput.value.trim().toLowerCase());
+    // The line is responsible for resetting the offset value used for pagination.
     paginationCoinStore.resetOffset();
 };
 
-// Observe changes in the search value to handle resetting it and the offset
+// The `watch` function is used to watch for changes in the `valueInput` variable.
 watch(valueInput, () => {
-    // If the search value is empty, it is reset to the search and paging stores
     if (valueInput.value !== '') return;
+    // This line is used to clear the search input field when the `valueInput` variable is empty.
     searchCoinStore.setSearchInput("");
+    // The line is responsible for resetting the offset value used for pagination.
     paginationCoinStore.resetOffset();
 });
 </script>
