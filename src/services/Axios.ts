@@ -1,14 +1,14 @@
 import axios, { AxiosInstance } from 'axios';
 
-// Authentication token obtained from the environment
+// Importing the authentication token from environment variables.
 const token = import.meta.env.VITE_TOKEN_ENV;
 
-// Create an Axios instance for cryptocurrency API requests
+// Axios instance for making HTTP requests to the Coinranking API.
 const cryptocurrencies: AxiosInstance = axios.create({
     baseURL: 'https://api.coinranking.com',
     headers: {
         'Content-Type': 'application/json',
-        'x-access-token': `${token}` // Including the authentication token in the headers
+        'x-access-token': `${token}` // Including the authentication token in the headers.
     }
 });
 

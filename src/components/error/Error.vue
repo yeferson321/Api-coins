@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 
+// Initializes the router instance using the useRouter function.
 const router = useRouter();
 </script>
 

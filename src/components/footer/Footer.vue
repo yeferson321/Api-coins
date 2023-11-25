@@ -1,9 +1,10 @@
 <script setup lang="ts">
+// An array of objects is defined with information about different navigation links.
 const navigation = [
-  { name: 'Rapidapi', href: 'https://rapidapi.com/Coinranking/api/coinranking1' },
-  { name: 'Coinranking', href: 'https://developers.coinranking.com/api' },
-  { name: 'Chartjs', href: 'https://www.chartjs.org/docs/latest' },
-  { name: 'GitHub', href: 'https://github.com/yeferson321/Api-coins' },
+    { name: 'Rapidapi', href: 'https://rapidapi.com/Coinranking/api/coinranking1' },
+    { name: 'Coinranking', href: 'https://developers.coinranking.com/api' },
+    { name: 'Chartjs', href: 'https://www.chartjs.org/docs/latest' },
+    { name: 'GitHub', href: 'https://github.com/yeferson321/Api-coins' },
 ];
 </script>
 

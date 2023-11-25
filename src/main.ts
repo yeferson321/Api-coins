@@ -6,14 +6,13 @@ import FloatingVue from 'floating-vue';
 import 'floating-vue/dist/style.css';
 import './style.css';
 
-// Create a Pinia instance to manage global state
+// Use Pinia for global state management.
 const pinia = createPinia();
 
-// Initialize the Vue application with additional configurations and libraries
 createApp(App)
-.use(pinia) // Use Pinia for global state
-.use(router) // Use the router
-.use(FloatingVue, { // Theme settings for tooltips
+.use(pinia) // Use Pinia for global state.
+.use(router) // Use the router.
+.use(FloatingVue, { // Theme settings for tooltips.
     themes: {
         'tooltip': {
             triggers: ['focus', 'hover'],

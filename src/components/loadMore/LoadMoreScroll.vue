@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, Ref, ref, toRefs } from 'vue';
+import { onMounted, Ref, ref, toRefs } from 'vue';
 import { useRouter } from 'vue-router';
-import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { DataInterface } from '../../interfaces/DataInterface';
+import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
 const router = useRouter();
 const searchCoinStore = useSearchCoinStore();
-const paginationStore = usePaginationCoinStore();
 const { coins } = toRefs(searchCoinStore);
-const { offset, items } = toRefs(paginationStore);
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+const paginationStore = usePaginationCoinStore();
+const { offset, items } = toRefs(paginationStore);
+const container: Ref<HTMLElement | null> = ref(null);
 const isLoading: Ref<boolean> = ref(false);
 const error: Ref<boolean> = ref(false);
 
@@ -22,43 +23,45 @@ const scrollToTopAndPushRoute = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const fetchMoreCoins = async (favoriteCoin: string[]) => {
-    if (isLoading.value) return;
-    
-    paginationStore.setOffset(offset.value + items.value)
+const fetchMoreCoins = async (favoriteCoin: string[], offset: number) => {
     isLoading.value = true;
     try {
-        
-        const { coins: fetchedCoins }: DataInterface = await getSearchFavoritesCoins(favoriteCoin, offset.value);
+        const { coins: fetchedCoins }: DataInterface = await getSearchFavoritesCoins(favoriteCoin, offset);
         searchCoinStore.mergeCoins(fetchedCoins);
     } catch (err: unknown) {
         error.value = true;
     } finally {
         isLoading.value = false;
-    }
+    };
 };
 
-const scrollFetch = () => {
-    const scrollY = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
+const handleIntersect = (entries: IntersectionObserverEntry[]) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
 
     if (favoriteCoin.value.length === coins.value.length || coins.value.length < items.value) return;
-
-    if (scrollY + windowHeight <= documentHeight - 300) return;
-    fetchMoreCoins(favoriteCoin.value);
-
-    console.log(offset.value)
+    paginationStore.setIncOffset()
+    fetchMoreCoins(favoriteCoin.value, offset.value);
+  });
 };
 
-onMounted(() => window.addEventListener('scroll', scrollFetch));
+onMounted(() => {
+  const options: IntersectionObserverInit = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5 // Define el porcentaje del elemento que debe estar visible
+  };
 
-onBeforeUnmount(() => window.removeEventListener('scroll', scrollFetch));
+  const observer = new IntersectionObserver(handleIntersect, options);
+
+  if (!container.value) return; 
+  observer.observe(container.value);
+});
 </script>
 
 <template>
-    <div class="py-10">
-        <div class="text-center">    
+    <div class="py-10" ref="container">
+        <div class="text-center">  
             <button v-if="favoriteCoin.length === coins.length || coins.length < items" @click="scrollToTopAndPushRoute" type="button" class="text-sm sm:text-base px-4 py-1.5 rounded-full text-white border-blue-600 border hover:bg-blue-700 transition duration-450 ease-in-out focus:outline-none">
                 Add more coins
             </button>            

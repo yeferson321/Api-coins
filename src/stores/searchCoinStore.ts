@@ -24,11 +24,11 @@ export const useSearchCoinStore = defineStore('searchCoinStore', {
       this.error = true;
     },
 
-    setSearchCoins(coins: CoinInterface[], stats: StatsInterface, newNoFound: boolean) {
+    setSearchCoins(newCoins: CoinInterface[], newStats: StatsInterface) {
       this.isLoading = false;
-      this.noFound = newNoFound;
-      this.coins = coins;
-      this.stats = stats;
+      this.noFound = !newCoins.length;
+      this.coins = newCoins;
+      this.stats = newStats;
     },
 
     // Coins Component

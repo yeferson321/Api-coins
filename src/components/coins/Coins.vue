@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { toRefs, watchEffect } from 'vue';
-import { DataInterface } from '../../interfaces/indexInterface';
+import { watchEffect } from 'vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
-import { getSearchCoins } from '../../services/CoinService';
-import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
-import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
+import { useCoins } from './useCoins';
 import SearchCoins from '../searchCoins/SearchCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
 import Canvas from '../canvas/Canvas.vue';
@@ -13,30 +9,10 @@ import NoFound from '../noFound/NoFound.vue';
 import Error from '../error/Error.vue';
 import Pagination from '../pagination/Pagination.vue';
 
-// Get instances of the stores and references to their reactive attributes.
-const searchCoinStore = useSearchCoinStore();
-const { coins, stats, searchInput, isLoading, noFound, error } = toRefs(searchCoinStore);
-const favoriteCoinStore = useFavoriteCoinStore();
-const { offset } = toRefs(usePaginationCoinStore());
+// Destructures and gets reactive data and methods from the 'useCoins' composable.
+const { coins, stats, searchInput, isLoading, noFound, error, offset,
+    favoriteCoinStore, fetchSearchResults, getIconColor } = useCoins();
 
-// The `fetchSearchResults` function searches results based on offset and search value.
-const fetchSearchResults = async (offset: number, searchInput: string) => {
-    searchCoinStore.setIsLoading();
-    try {
-        // The line is destructuring the response object returned by the `getSearchCoins` function.
-        const { coins, stats }: DataInterface = await getSearchCoins(offset, searchInput);
-        // The line is checking if the `coins` array is empty.
-        const noFoundResult: boolean = coins.length === 0;
-        // The line is updating the reactive attributes `coins`, `stats`, and `noFound` in the `searchCoinStore` store with the provided values.
-        searchCoinStore.setSearchCoins(coins, stats, noFoundResult);
-    } catch (err: unknown) {
-        //console.error(err);
-        // The line indicates that an error occurred during the search process.
-        searchCoinStore.setSearchError();
-    };
-};
-
-// The `watchEffect` function is used to run the `fetchSearchResults` function whenever the `offset` or `searchInput` values change.
 watchEffect(() => fetchSearchResults(offset.value, searchInput.value));
 </script>
 
@@ -67,7 +43,7 @@ watchEffect(() => fetchSearchResults(offset.value, searchInput.value));
                         <div class="flex items-center space-x-2 fold:space-x-3 sm:space-x-5">
                             <button @click="favoriteCoinStore.toggleFavoriteCoin(cryptos.uuid, cryptos.name)" type="button" class="focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                    :class="['w-4 h-4', favoriteCoinStore.getIconColor(cryptos.uuid, cryptos.name), 'fill-blue-500']">
+                                    :class="['w-4 h-4', getIconColor(cryptos.uuid, cryptos.name), 'fill-blue-500']">
                                     <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
                                 </svg>
                             </button>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// An array of objects is defined with information about different navigation links.
 const navigation = [
   { name: 'Rapidapi', href: 'https://rapidapi.com/Coinranking/api/coinranking1', button: false },
   { name: 'Coinranking', href: 'https://developers.coinranking.com/api', button: false },

@@ -1,26 +1,38 @@
 import { defineStore } from 'pinia';
+import { PaginationStoreInterface } from '../interfaces/indexInterface';
 
-interface PaginationInterface {
-  offset: number;
-  items: number;
-};
-
-// Definition and creation of the store
 export const usePaginationCoinStore = defineStore('paginationCoinStore', {
-  state: (): PaginationInterface => ({
-    offset: 0, // Initial offset value
-    items: 50, // Default number of items per page
+  state: (): PaginationStoreInterface => ({
+    offset: 0,
+    items: 50,
+    halfItem: 25,
+    pagesToShow: [],
+    MIN_PAGES: 3,
+    MAX_PAGES: 4,
+    CENTER_PAGES: 1
   }),
+  
+  getters: {
+    currentPage: (state) => {
+      return (state.offset / state.items) + 1;
+    }
+  },
 
   actions: {
-    // Method to update the pagination offset
     setOffset(newOffset: number) {
       this.offset = newOffset;
     },
+
+    setIncOffset() {
+      this.offset += this.items;
+    },
+
+    setDecOffset() {
+      this.offset -= this.items;
+    },
     
-    // Method to reset the offset to its initial value
     resetOffset() {
       this.offset = 0;
-    }
+    },
   }
 });

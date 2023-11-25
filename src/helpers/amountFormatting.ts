@@ -1,29 +1,27 @@
-// This function formats a number as a dollar amount
+// Formats an amount to a dollar currency format.
 export const formatAmountToDollar = (amount: number) => {
-    // If the value is not a number, returns a string indicating an unavailable value
     if (isNaN(amount)) return "$ --";
 
-    // Options to format the number as a dollar amount with a minimum and maximum number of decimal digits
     const options = { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 3 };
-    // Returns the value formatted en dolares and replace the '$' symbol with '$ ' leaving a space
+    // Formats the amount to a dollar currency format and adds a space after the dollar symbol.
     return amount.toLocaleString('en-US', options).replace('$', '$ ');
 };
 
-// This function formats a number with a suffix (K, Million, Billion, etc.)
+// Formats an amount with a suffix (K, Million, Billion, Trillion).
 export const formatAmountWithSuffixe = (amount: number) => {
-    // If the value is not a number, returns a string indicating an unavailable value
     if (isNaN(amount)) return "$ --";
 
-    // Suffixes for different numerical scales (K, Million, Billion, Trillion)
+    // Array of suffixes for different scales.
     const suffixes = ["", "K", "Million", "Billion", "Trillion"];
     let index = 0;
 
-    // Iterates to find the appropriate suffix based on the scale of the number
+    // Finds the appropriate suffix based on the amount's scale.
     while (amount >= 1000 && index < suffixes.length - 1) {
         amount /= 1000;
         index++;
     };
 
-    // Returns the number formatted with the corresponding suffix
+    // Formats the amount with the determined suffix.
     return `${amount.toFixed(2)} ${suffixes[index]}`;
 };
+

@@ -1,6 +1,6 @@
 import { CoinInterface, StatsInterface } from './DataInterface';
 
-// Defining an interface
+// Defining an interface.
 export interface CoinStoreInterface {
     coins: CoinInterface[];
     stats: StatsInterface;

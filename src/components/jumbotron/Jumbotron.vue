@@ -3,45 +3,39 @@ import { Ref, ref, toRefs } from 'vue';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
-// Get instances of the stores and references to their reactive attributes
 const { stats, error } = toRefs(useSearchCoinStore());
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
+// Determines if the route is the favorites page.
 const identifyRoute: Ref<boolean> = ref(window.location.pathname === "/favorites")
 
-// This function formats a number with a suffix (K, Million, Billion, etc.)
+// Formats an amount with a suffix (K, Million, Billion, Trillion).
 const formatAmountWithSuffixe = (amount: number, error: boolean) => {
-    // If there is an error, return a default value
     if (error) return "--";
-    // If we are on a specific route and there are no favorite currencies, show a specific message
     if (identifyRoute.value && !favoriteCoin.value.length) return "$ --";
-    // If the value is not a number, display a loading message
     if (isNaN(amount)) return "Loading...";
 
-    // Suffixes for different numerical scales (K, Million, Billion, Trillion)
+    // Array of suffixes for different scales.
     const suffixes = ["", "K", "Million", "Billion", "Trillion"];
     let index = 0;
 
-    // Iterates to find the appropriate suffix based on the scale of the number
+    // Finds the appropriate suffix based on the amount's scale.
     while (amount >= 1000 && index < suffixes.length - 1) {
         amount /= 1000;
         index++;
     };
 
-    // Returns the number formatted with the corresponding suffix
+    // Formats the amount with the determined suffix.
     return `${amount.toFixed(2)} ${suffixes[index]}`;
 };
 
-// This function formats quantities with thousands separator
+// Formats an amount with a thousand separator.
 const formatAmountMileSeparator = (amount: number, error: boolean) => {
-    // If there is an error, return a default value
     if (error) return "--";
-    // If we are on a specific route and there are no favorite currencies, show a specific message
     if (identifyRoute.value && !favoriteCoin.value.length) return "No Coins";
-    // If the value is not a number, display a loading message
     if (isNaN(amount)) return "Loading...";
 
-    // Returns the value formatted with a mile separator and a maximum of 2 decimal places
-    return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });;
+    // Convert the number to a string and insert dots as thousand separators using regex.
+    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 </script>
 

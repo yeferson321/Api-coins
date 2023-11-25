@@ -4,26 +4,22 @@ import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
-// Get instances of the stores and references to their reactive attributes
 const searchCoinStore = useSearchCoinStore();
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
 const paginationCoinStore = usePaginationCoinStore();
+// Creating a reactive variable for input value.
 const valueInput: Ref<string> = ref("");
 
-// This function performs the search when pressing Enter
+// Update the state with the current input value when Enter key is pressed.
 const searchByEnter = () => {
-    // The line sets the search input value in `searchCoinStore` to the trimmed, lowercase version of the `valueInput` variable.
     searchCoinStore.setSearchInput(valueInput.value.trim().toLowerCase());
-    // The line is responsible for resetting the offset value used for pagination.
     paginationCoinStore.resetOffset();
 };
 
-// The `watch` function is used to watch for changes in the `valueInput` variable.
+// Watching the input value for changes to reset the search if the input is empty.
 watch(valueInput, () => {
     if (valueInput.value !== '') return;
-    // This line is used to clear the search input field when the `valueInput` variable is empty.
     searchCoinStore.setSearchInput("");
-    // The line is responsible for resetting the offset value used for pagination.
     paginationCoinStore.resetOffset();
 });
 </script>

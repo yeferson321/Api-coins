@@ -1,65 +1,30 @@
 <script setup lang="ts">
-import { onMounted, toRefs, watch } from 'vue';
-import { DataInterface } from '../../interfaces/DataInterface';
+import { onMounted, watch } from 'vue';
 import { formatAmountToDollar, formatAmountWithSuffixe } from '../../helpers/amountFormatting';
-import { getSearchFavoritesCoins } from '../../services/CoinService';
-import { useSearchCoinStore } from '../../stores/searchCoinStore';
-import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
+import { useFavorites } from './useFavorites';
 import SearchFavoriteCoins from '../searchFavoriteCoins/SearchFavoriteCoins.vue';
 import IsLoading from '../isLoading/IsLoading.vue';
-import LoadMore from '../loadMore/LoadMore.vue';
+import LoadMoreHidden from '../loadMore/LoadMoreHidden.vue';
+import LoadMoreScroll from '../loadMore/LoadMoreScroll.vue';
 import Canvas from '../canvas/Canvas.vue';
 import NoFound from '../noFound/NoFound.vue';
 import NoFavorites from '../noFavorites/NoFavorites.vue';
 import Error from '../error/Error.vue';
 
-// Get instances of the stores and references to their reactive attributes.
-const searchCoinStore = useSearchCoinStore();
-const { coins, stats, searchFavorite, isLoading, noFound, noFavorites, error } = toRefs(useSearchCoinStore());
-const favoriteCoinStore = useFavoriteCoinStore();
-const { favoriteCoin } = toRefs(favoriteCoinStore);
+const { coins, searchFavorite, isLoading, noFound, noFavorites, error, favoriteCoin,
+        showMoreHidden, showMoreScroll, searchCoinStore, favoriteCoinStore, fetchSearchResults, removeCoinFavorite  } = useFavorites();
 
-// The `fetchSearchResults` function is an asynchronous function that is responsible for fetching search results based on the provided search criteria.
-const fetchSearchResults = async (searchFavoriteCoin: string[], favoriteCoin: string[]) => {
-    if (!favoriteCoin.length) return searchCoinStore.setNoFavorites();
+// The `onMounted` function is responsible for fetching when the component is mounted.
+onMounted(() => {
+    // The code is checking if the length of the `favoriteCoin` array is greater than 0. If it is, it calls the `fetchSearchResults` function with the
+    // `favoriteCoin` array as the parameter. This function fetches search results based on the `favoriteCoin` values.
+    favoriteCoin.value.length ? fetchSearchResults(favoriteCoin.value) : searchCoinStore.setNoFavorites();
+});
 
-    // The line assigns the value of `searchFavoriteCoin` to the variable `valueSearch` if `searchFavoriteCoin` has a length greater than 0. Otherwise, 
-    // it assigns the value of `favoriteCoin` to `valueSearch`.
-    let valueSearch = searchFavoriteCoin.length ? searchFavoriteCoin : favoriteCoin;
-
-    searchCoinStore.setIsLoading();
-    try {
-        // The line is destructuring the response object returned by the `getSearchCoins` function.
-        const { coins, stats }: DataInterface = await getSearchFavoritesCoins(valueSearch);
-        // The line is updating the reactive attributes `coins`, `stats`, and `noFound` in the `searchCoinStore` store with the provided values.
-        searchCoinStore.setSearchCoins(coins, stats, false);
-    } catch (err: unknown) {
-        //console.error(err);
-        // The line indicates that an error occurred during the search process.
-        searchCoinStore.setSearchError();
-    };
-};
-
-// The `removeCoinFavorite` function is responsible for removing a coin from the favorite list.
-const removeCoinFavorite = (uuid: string, name: string) => {
-    // This line removes a coin from the `searchCoinStore` store. Takes the parameter "uuid", which is the unique identifier of the currency to be removed.
-    searchCoinStore.removeCoin(uuid);
-    // This line removing the coin from the store and also from the localstore.
-    favoriteCoinStore.toggleFavoriteCoin(uuid, name);
-
-    // This code block is checking if there are any coins in the `coins` array.
-    if (coins.value.length) return;
-    // This line checks if there are favorite coins in the `favoriteCoin` array. If there are, call the `fetchSearchResults` function with the values `searchFavorite` 
-    // and `favoriteCoin`. If there are no favorite coins, call the `searchCoinStore.setNoFavorites()` function to set the `noFavorites` flag in the `searchCoinStore` store.
-    favoriteCoin.value.length ? fetchSearchResults(searchFavorite.value, favoriteCoin.value) : searchCoinStore.setNoFavorites();
-};
-
-// The `onMounted` function is a lifecycle hook provided by Vue. It is used to perform an action when the component is mounted and ready to be rendered.
-onMounted(() => { fetchSearchResults(searchFavorite.value, favoriteCoin.value)});
-
-// The `watch` function is used to watch for changes in the `searchFavorite` variable.
+// The `watch` function is responsible for monitoring changes to the `searchFavorite` variable.
 watch(() => searchFavorite.value, () => {
-    fetchSearchResults(searchFavorite.value, favoriteCoin.value);
+    // The line is executing the `fetchSearchResults` function which retrieves search results based on the `searchFavorite` values.
+    fetchSearchResults(searchFavorite.value);
 });
 </script>
 
@@ -70,7 +35,7 @@ watch(() => searchFavorite.value, () => {
             <thead class="text-xs sm:text-sm uppercase text-gray-400">
                 <tr>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[55%] sm:w-[40%]">                     
-                        All Coins {{ parseInt(stats.total) !== 0 ? stats.total : '0' }}
+                        All Coins {{ coins.length !== 0 ? coins.length : '' }}
                     </th>
                     <th scope="col" class="px-1 sm:px-2 py-2 whitespace-nowrap w-[22%] sm:w-[20%]">
                         Price
@@ -122,7 +87,8 @@ watch(() => searchFavorite.value, () => {
                 </tr>
             </tbody>
         </table>
-        <LoadMore v-if="!error && !noFound && !noFavorites"></LoadMore>
+        <LoadMoreHidden v-if="showMoreHidden()"></LoadMoreHidden>
+        <LoadMoreScroll v-if="showMoreScroll()"></LoadMoreScroll>
         <NoFound v-if="noFound"></NoFound>
         <NoFavorites v-if="noFavorites"></NoFavorites>
         <Error v-if="error"></Error>

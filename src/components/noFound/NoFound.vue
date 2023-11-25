@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 
+// Access the pagination store.
 const paginationStore = usePaginationCoinStore();
 </script>
 

@@ -2,7 +2,6 @@
 import { watchEffect } from 'vue';
 import { useCanvas } from './useCanvas.ts'
 
-// Define props received by the component
 const props = defineProps({
     sparkline: {
         type: Array as () => string[],
@@ -18,10 +17,9 @@ const props = defineProps({
     }
 });
 
-// The line is using the `useCanvas` function to initializes and retrieves the `canvasRef` variable and the `renderChart` function.
+// Destructures 'canvasRef' and 'renderChart' from the 'useCanvas' composable.
 const { canvasRef, renderChart } = useCanvas(props);
 
-// The `watch` function is used to watch for changes in the `props` variable.
 watchEffect(renderChart);
 </script>
 

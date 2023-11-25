@@ -1,17 +1,17 @@
 import { RouteRecordRaw, createRouter, createWebHistory } from 'vue-router';
 
-// Import of components for routes
+// importing the components for the routes.
 const CoinsComponent = () => import('../components/coins/Coins.vue');
 const FavoritesComponent = () => import('../components/favorites/Favorites.vue');
 
-// Definition of the routes
+// Defines the routes and associates each route with its corresponding component for rendering.
 const routes: RouteRecordRaw[] = [
     { path: '/', name: 'coins', component: CoinsComponent },
     { path: '/favorites', name: 'favorites', component: FavoritesComponent },
-    { path: '/:noPage(.*)', redirect: '/' } // Redirect any undefined path to the main page
+    { path: '/:noPage(.*)', redirect: '/' } // Redirect any undefined path to the main page.
 ];
 
-// Router creation
+// Creates the router instance.
 const router = createRouter({
     history: createWebHistory(),
     routes,
