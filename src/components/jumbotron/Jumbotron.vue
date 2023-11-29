@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { Ref, ref, toRefs } from 'vue';
+import { toRefs } from 'vue';
+import { identifyRoute } from '../../helpers/pathnameUtils';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
 import { useFavoriteCoinStore } from '../../stores/favoriteCoinStore';
 
 const { stats, error } = toRefs(useSearchCoinStore());
 const { favoriteCoin } = toRefs(useFavoriteCoinStore());
-// Determines if the route is the favorites page.
-const identifyRoute: Ref<boolean> = ref(window.location.pathname === "/favorites")
 
 // Formats an amount with a suffix (K, Million, Billion, Trillion).
 const formatAmountWithSuffixe = (amount: number, error: boolean) => {

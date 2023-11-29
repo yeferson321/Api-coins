@@ -3,18 +3,9 @@ import { watchEffect } from 'vue';
 import { useCanvas } from './useCanvas.ts'
 
 const props = defineProps({
-    sparkline: {
-        type: Array as () => string[],
-        default: []
-    },
-    change: {
-        type: String,
-        default: ""
-    },
-    index: {
-        type: Number,
-        required: true,
-    }
+    sparkline: { type: Array as () => string[], default: [] },
+    change: { type: String, default: "" },
+    index: { type: Number, required: true }
 });
 
 // Destructures 'canvasRef' and 'renderChart' from the 'useCanvas' composable.

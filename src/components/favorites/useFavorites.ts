@@ -1,5 +1,6 @@
 // favoritesLogic.ts
 import { toRefs } from 'vue';
+import { toggleFavoriteCoin } from '../../helpers/favoriteCoinsUtils';
 import { DataInterface } from '../../interfaces/DataInterface';
 import { getSearchFavoritesCoins } from '../../services/CoinService';
 import { useSearchCoinStore } from '../../stores/searchCoinStore';
@@ -9,7 +10,7 @@ import { usePaginationCoinStore } from '../../stores/paginationCoinStore';
 export const useFavorites = () => {
     // The code is importing and using various stores and their reactive attributes.
     const searchCoinStore = useSearchCoinStore();
-    const { coins, searchFavorite, isLoading, noFound, noFavorites, error } = toRefs(useSearchCoinStore());
+    const { coins, searchFavorite, noFound, noFavorites, error } = toRefs(useSearchCoinStore());
     const favoriteCoinStore = useFavoriteCoinStore();
     const { favoriteCoin } = toRefs(favoriteCoinStore);
     const { halfItem } = toRefs(usePaginationCoinStore());
@@ -20,6 +21,8 @@ export const useFavorites = () => {
     // The `fetchSearchResults` function is an asynchronous function that is responsible for fetching search results based on the `searchFavoriteCoin`
     // and `favoriteCoin` values.
     const fetchSearchResults = async (searchFavoriteCoin: string[]) => {
+        if(!favoriteCoin.value.length ) return searchCoinStore.setNoFavorites();
+        
         searchCoinStore.setIsLoading();
         try {
             // The line is destructuring the response object returned by the `getSearchCoins` function.
@@ -39,14 +42,14 @@ export const useFavorites = () => {
         searchCoinStore.removeCoin(uuid);
         // The line is removing the currency from the localstore. Two parameters are needed: `uuid`, which is the unique identifier of the currency, and `name`, which is 
         // the name of the currency.
-        favoriteCoinStore.toggleFavoriteCoin(uuid, name);
+        toggleFavoriteCoin(uuid, name);
 
-        if (!coins.value.length) return;
-        fetchSearchResults(favoriteCoin.value);
+        if (coins.value.length) return;
+        fetchSearchResults(favoriteCoin.value)
     };
 
     return { 
-        coins, searchFavorite, isLoading, noFound, noFavorites, error, favoriteCoin,
-        showMoreHidden, showMoreScroll, searchCoinStore, favoriteCoinStore, fetchSearchResults, removeCoinFavorite 
+        searchFavorite, noFound, noFavorites, error, favoriteCoin, 
+        showMoreHidden, showMoreScroll, fetchSearchResults, removeCoinFavorite
     };
 };
